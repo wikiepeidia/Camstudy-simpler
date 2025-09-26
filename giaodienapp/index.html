@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Mobile App</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Page -->
+        <div class="page active" id="main-page">
+            <header class="header">
+                <div class="header-content">
+                    <h1 class="app-title">PhotoMagic</h1>
+                    <div class="header-actions">
+                        <button class="header-btn" onclick="showPage('settings')">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <div class="welcome-section">
+                    <div class="welcome-text">
+                        <h2>Welcome back!</h2>
+                        <p>Create amazing photos with our advanced tools</p>
+                    </div>
+                    <div class="welcome-illustration">
+                        <i class="fas fa-camera-retro"></i>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <div class="action-card primary" onclick="showPage('camera')">
+                        <div class="card-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Take Photo</h3>
+                            <p>Capture beautiful moments</p>
+                        </div>
+                        <div class="card-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+
+                    <div class="action-card secondary" onclick="showPage('history')">
+                        <div class="card-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>View History</h3>
+                            <p>Browse your photo gallery</p>
+                        </div>
+                        <div class="card-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-grid">
+                    <!-- Features removed per user request -->
+                </div>
+            </main>
+
+            <nav class="bottom-nav">
+                <button class="nav-item active" onclick="showPage('main')">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </button>
+                <button class="nav-item" onclick="showPage('camera')">
+                    <i class="fas fa-camera"></i>
+                    <span>Camera</span>
+                </button>
+                <button class="nav-item" onclick="showPage('history')">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </button>
+                <button class="nav-item" onclick="showPage('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Camera Page -->
+        <div class="page" id="camera-page">
+            <header class="header camera-header">
+                <div class="header-content">
+                    <button class="back-btn" onclick="showPage('main')">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1>Camera</h1>
+                    <button class="header-btn" onclick="toggleCameraSettings()">
+                        <i class="fas fa-sliders-h"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="camera-container">
+                <div class="camera-preview">
+                    <div class="preview-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <p>Camera Preview</p>
+                    </div>
+                    <div class="camera-overlay">
+                        <div class="focus-frame"></div>
+                    </div>
+                </div>
+
+                <div class="camera-settings" id="camera-settings">
+                    <div class="settings-header">
+                        <h3>Camera Settings</h3>
+                        <button onclick="toggleCameraSettings()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="settings-list">
+                        <div class="setting-item">
+                            <span>Flash</span>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active">Auto</button>
+                                <button class="toggle-btn">On</button>
+                                <button class="toggle-btn">Off</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span>HDR</span>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <span>Grid</span>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="camera-controls">
+                    <div class="control-row">
+                        <button class="control-btn">
+                            <i class="fas fa-images"></i>
+                        </button>
+                        <button class="capture-btn">
+                            <div class="capture-inner"></div>
+                        </button>
+                        <button class="control-btn">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-item active">
+                            <div class="filter-preview normal"></div>
+                            <span>Normal</span>
+                        </div>
+                        <div class="filter-item">
+                            <div class="filter-preview vintage"></div>
+                            <span>Vintage</span>
+                        </div>
+                        <div class="filter-item">
+                            <div class="filter-preview bw"></div>
+                            <span>B&W</span>
+                        </div>
+                        <div class="filter-item">
+                            <div class="filter-preview warm"></div>
+                            <span>Warm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Page -->
+        <div class="page" id="history-page">
+            <header class="header">
+                <div class="header-content">
+                    <button class="back-btn" onclick="showPage('main')">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1>Photo History</h1>
+                    <button class="header-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="history-content">
+                <div class="history-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">127</span>
+                        <span class="stat-label">Photos</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">24</span>
+                        <span class="stat-label">Albums</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">8.2GB</span>
+                        <span class="stat-label">Storage</span>
+                    </div>
+                </div>
+
+                <!-- Photo Organization Controls -->
+                <div class="photo-organization">
+                    <div class="organization-header">
+                        <h3>Organization</h3>
+                        <button class="organize-btn">
+                            <i class="fas fa-sort"></i>
+                        </button>
+                    </div>
+                    <div class="sort-options">
+                        <button class="sort-btn active" data-sort="date">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>By Date</span>
+                        </button>
+                        <button class="sort-btn" data-sort="category">
+                            <i class="fas fa-tags"></i>
+                            <span>By Category</span>
+                        </button>
+                        <button class="sort-btn" data-sort="location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>By Location</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-tabs">
+                    <button class="tab-btn active">Recent</button>
+                    <button class="tab-btn">Favorites</button>
+                    <button class="tab-btn">Albums</button>
+                </div>
+
+                <!-- Gmail-style History List -->
+                <div class="history-list">
+                    <div class="history-item">
+                        <div class="history-checkbox">
+                            <input type="checkbox" id="photo1">
+                            <label for="photo1"></label>
+                        </div>
+                        <div class="history-thumbnail">
+                            <div class="photo-placeholder">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-main">
+                                <span class="history-title">Portrait Photo - Central Park</span>
+                                <span class="history-preview">Beautiful sunset portrait session with amazing golden hour lighting...</span>
+                            </div>
+                            <div class="history-meta">
+                                <span class="history-date">Today, 3:45 PM</span>
+                                <span class="history-size">2.4 MB</span>
+                                <span class="history-location">New York</span>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="action-btn">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="history-checkbox">
+                            <input type="checkbox" id="photo2">
+                            <label for="photo2"></label>
+                        </div>
+                        <div class="history-thumbnail">
+                            <div class="photo-placeholder landscape">
+                                <i class="fas fa-mountain"></i>
+                            </div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-main">
+                                <span class="history-title">Mountain Landscape</span>
+                                <span class="history-preview">Epic mountain view captured during morning hike with crystal clear visibility...</span>
+                            </div>
+                            <div class="history-meta">
+                                <span class="history-date">Yesterday, 7:20 AM</span>
+                                <span class="history-size">3.1 MB</span>
+                                <span class="history-location">Colorado</span>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="action-btn favorited">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="history-checkbox">
+                            <input type="checkbox" id="photo3">
+                            <label for="photo3"></label>
+                        </div>
+                        <div class="history-thumbnail">
+                            <div class="photo-placeholder food">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-main">
+                                <span class="history-title">Italian Dinner</span>
+                                <span class="history-preview">Delicious homemade pasta with fresh ingredients and perfect plating...</span>
+                            </div>
+                            <div class="history-meta">
+                                <span class="history-date">Sep 22, 8:15 PM</span>
+                                <span class="history-size">1.8 MB</span>
+                                <span class="history-location">Restaurant</span>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="action-btn">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="history-checkbox">
+                            <input type="checkbox" id="photo4">
+                            <label for="photo4"></label>
+                        </div>
+                        <div class="history-thumbnail">
+                            <div class="photo-placeholder street">
+                                <i class="fas fa-city"></i>
+                            </div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-main">
+                                <span class="history-title">Street Photography</span>
+                                <span class="history-preview">Urban life captured in black and white with dramatic shadows and contrast...</span>
+                            </div>
+                            <div class="history-meta">
+                                <span class="history-date">Sep 21, 2:30 PM</span>
+                                <span class="history-size">2.9 MB</span>
+                                <span class="history-location">Downtown</span>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="action-btn">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="action-btn shared">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="history-item">
+                        <div class="history-checkbox">
+                            <input type="checkbox" id="photo5">
+                            <label for="photo5"></label>
+                        </div>
+                        <div class="history-thumbnail">
+                            <div class="photo-placeholder nature">
+                                <i class="fas fa-leaf"></i>
+                            </div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-main">
+                                <span class="history-title">Macro Nature Shot</span>
+                                <span class="history-preview">Close-up details of morning dew on leaves with incredible texture and depth...</span>
+                            </div>
+                            <div class="history-meta">
+                                <span class="history-date">Sep 20, 6:45 AM</span>
+                                <span class="history-size">4.2 MB</span>
+                                <span class="history-location">Garden</span>
+                            </div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="action-btn favorited">
+                                <i class="fas fa-star"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                    <div class="photo-item">
+                        <div class="photo-placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="photo-info">
+                            <span class="photo-date">1 week ago</span>
+                        </div>
+                    </div>
+                    <div class="photo-item">
+                        <div class="photo-placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="photo-info">
+                            <span class="photo-date">2 weeks ago</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="page" id="settings-page">
+            <header class="header">
+                <div class="header-content">
+                    <button class="back-btn" onclick="showPage('main')">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h1>Settings</h1>
+                </div>
+            </header>
+
+            <div class="settings-content">
+                <div class="settings-section">
+                    <div class="section-header">
+                        <i class="fas fa-camera"></i>
+                        <h3>Camera Settings</h3>
+                    </div>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-camera"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Photo Quality</span>
+                                    <span class="setting-desc">Set image resolution</span>
+                                </div>
+                            </div>
+                            <select class="setting-select">
+                                <option>High</option>
+                                <option>Medium</option>
+                                <option>Low</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-save"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Auto Save</span>
+                                    <span class="setting-desc">Save photos automatically</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Location Tags</span>
+                                    <span class="setting-desc">Add GPS data to photos</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="section-header">
+                        <i class="fas fa-cog"></i>
+                        <h3>General</h3>
+                    </div>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-moon"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Dark Mode</span>
+                                    <span class="setting-desc">Switch to dark theme</span>
+                                </div>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" onchange="toggleDarkMode()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-language"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Language</span>
+                                    <span class="setting-desc">Choose display language</span>
+                                </div>
+                            </div>
+                            <select class="setting-select">
+                                <option>English</option>
+                                <option>Vietnamese</option>
+                                <option>French</option>
+                            </select>
+                        </div>
+                        <div class="setting-item clickable">
+                            <div class="setting-info">
+                                <i class="fas fa-trash-alt"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Clear Cache</span>
+                                    <span class="setting-desc">Free up storage space</span>
+                                </div>
+                            </div>
+                            <span class="setting-value">245 MB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="section-header">
+                        <i class="fas fa-life-ring"></i>
+                        <h3>Support</h3>
+                    </div>
+                    <div class="settings-group">
+                        <div class="setting-item clickable">
+                            <div class="setting-info">
+                                <i class="fas fa-comment-alt"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Send Feedback</span>
+                                    <span class="setting-desc">Share your thoughts</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="setting-item clickable">
+                            <div class="setting-info">
+                                <i class="fas fa-question-circle"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Help & FAQ</span>
+                                    <span class="setting-desc">Get help and answers</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="fas fa-info-circle"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Version</span>
+                                    <span class="setting-desc">App version info</span>
+                                </div>
+                            </div>
+                            <span class="setting-value">2.1.4</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section logout-section">
+                    <div class="settings-group">
+                        <div class="setting-item logout-item clickable" onclick="showLogoutConfirm()">
+                            <div class="setting-info">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <div class="setting-text">
+                                    <span class="setting-title">Logout</span>
+                                    <span class="setting-desc">Sign out of your account</span>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

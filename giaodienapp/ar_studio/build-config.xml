@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-config version="3.0">
+  <project>
+    <name>PhotoMagic AR</name>
+    <version>1.0.0</version>
+    <bundle-id>com.photomagic.ar</bundle-id>
+  </project>
+
+  <platforms>
+    <platform name="android">
+      <min-sdk>21</min-sdk>
+      <target-sdk>31</target-sdk>
+      <permissions>
+        <permission>android.permission.CAMERA</permission>
+        <permission>android.permission.WRITE_EXTERNAL_STORAGE</permission>
+        <permission>android.permission.ACCESS_FINE_LOCATION</permission>
+        <permission>android.permission.RECORD_AUDIO</permission>
+      </permissions>
+    </platform>
+
+    <platform name="ios">
+      <min-version>12.0</min-version>
+      <target-version>15.0</target-version>
+      <permissions>
+        <permission>NSCameraUsageDescription</permission>
+        <permission>NSLocationWhenInUseUsageDescription</permission>
+        <permission>NSMicrophoneUsageDescription</permission>
+        <permission>NSPhotoLibraryUsageDescription</permission>
+      </permissions>
+    </platform>
+  </platforms>
+
+  <optimization>
+    <texture-compression enabled="true"/>
+    <shader-optimization enabled="true"/>
+    <asset-bundling enabled="true"/>
+    <code-minification enabled="true"/>
+  </optimization>
+
+  <dependencies>
+    <ar-framework>ARCore</ar-framework>
+    <ar-framework>ARKit</ar-framework>
+    <graphics>OpenGL ES 3.0</graphics>
+    <audio>OpenAL</audio>
+  </dependencies>
+</build-config>

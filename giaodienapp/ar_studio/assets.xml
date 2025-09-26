@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assets version="3.0">
+  <!-- 3D Models -->
+  <asset-group name="models" type="3d">
+    <asset id="cat_ears_model" type="gltf" source="models/cat_ears.gltf">
+      <properties>
+        <scale>1.0</scale>
+        <position>0 0 0</position>
+        <rotation>0 0 0</rotation>
+        <face-tracking>true</face-tracking>
+        <anchor-points>
+          <point name="left_ear" position="-0.5 0.8 0"/>
+          <point name="right_ear" position="0.5 0.8 0"/>
+        </anchor-points>
+      </properties>
+    </asset>
+
+    <asset id="dog_snout_model" type="gltf" source="models/dog_snout.gltf">
+      <properties>
+        <scale>0.8</scale>
+        <position>0 -0.2 0.1</position>
+        <rotation>0 0 0</rotation>
+        <face-tracking>true</face-tracking>
+        <anchor-points>
+          <point name="nose_tip" position="0 0 0.15"/>
+        </anchor-points>
+      </properties>
+    </asset>
+  </asset-group>
+
+  <!-- Image Assets -->
+  <asset-group name="images" type="texture">
+    <asset id="app_icon" type="png" source="images/app_icon.png">
+      <sizes>
+        <size width="512" height="512" file="images/app_icon_512.png"/>
+        <size width="256" height="256" file="images/app_icon_256.png"/>
+        <size width="128" height="128" file="images/app_icon_128.png"/>
+        <size width="64" height="64" file="images/app_icon_64.png"/>
+      </sizes>
+    </asset>
+
+    <asset id="splash_screen" type="png" source="images/splash_screen.png">
+      <properties>
+        <width>1080</width>
+        <height>1920</height>
+        <aspect-ratio>9:16</aspect-ratio>
+      </properties>
+    </asset>
+
+    <asset id="filter_preview_vintage" type="jpg" source="images/filters/vintage_preview.jpg"/>
+    <asset id="filter_preview_beauty" type="jpg" source="images/filters/beauty_preview.jpg"/>
+    <asset id="filter_preview_bw" type="jpg" source="images/filters/bw_preview.jpg"/>
+  </asset-group>
+
+  <!-- Audio Assets -->
+  <asset-group name="audio" type="sound">
+    <asset id="camera_shutter" type="wav" source="sounds/camera_shutter.wav">
+      <properties>
+        <volume>0.8</volume>
+        <loop>false</loop>
+        <format>stereo</format>
+        <sample-rate>44100</sample-rate>
+      </properties>
+    </asset>
+
+    <asset id="notification_sound" type="wav" source="sounds/notification.wav">
+      <properties>
+        <volume>0.6</volume>
+        <loop>false</loop>
+        <format>stereo</format>
+        <sample-rate>44100</sample-rate>
+      </properties>
+    </asset>
+
+    <asset id="ui_tap" type="wav" source="sounds/ui_tap.wav">
+      <properties>
+        <volume>0.4</volume>
+        <loop>false</loop>
+        <format>stereo</format>
+        <sample-rate>44100</sample-rate>
+      </properties>
+    </asset>
+  </asset-group>
+
+  <!-- Font Assets -->
+  <asset-group name="fonts" type="font">
+    <asset id="inter_regular" type="woff2" source="fonts/Inter-Regular.woff2">
+      <properties>
+        <font-family>Inter</font-family>
+        <font-weight>400</font-weight>
+        <font-style>normal</font-style>
+      </properties>
+    </asset>
+
+    <asset id="inter_medium" type="woff2" source="fonts/Inter-Medium.woff2">
+      <properties>
+        <font-family>Inter</font-family>
+        <font-weight>500</font-weight>
+        <font-style>normal</font-style>
+      </properties>
+    </asset>
+
+    <asset id="inter_bold" type="woff2" source="fonts/Inter-Bold.woff2">
+      <properties>
+        <font-family>Inter</font-family>
+        <font-weight>700</font-weight>
+        <font-style>normal</font-style>
+      </properties>
+    </asset>
+
+    <asset id="fontawesome" type="woff2" source="fonts/FontAwesome-Solid.woff2">
+      <properties>
+        <font-family>Font Awesome 5 Free</font-family>
+        <font-weight>900</font-weight>
+        <font-style>normal</font-style>
+      </properties>
+    </asset>
+  </asset-group>
+
+  <!-- Shader Assets -->
+  <asset-group name="shaders" type="glsl">
+    <asset id="glass_morphism_vertex" type="glsl" source="shaders/glass_morphism.vert">
+      <properties>
+        <shader-type>vertex</shader-type>
+        <version>300 es</version>
+      </properties>
+    </asset>
+
+    <asset id="glass_morphism_fragment" type="glsl" source="shaders/glass_morphism.frag">
+      <properties>
+        <shader-type>fragment</shader-type>
+        <version>300 es</version>
+      </properties>
+    </asset>
+
+    <asset id="beauty_filter_fragment" type="glsl" source="shaders/beauty_filter.frag">
+      <properties>
+        <shader-type>fragment</shader-type>
+        <version>300 es</version>
+      </properties>
+    </asset>
+  </asset-group>
+
+  <!-- Configuration Assets -->
+  <asset-group name="config" type="json">
+    <asset id="default_settings" type="json" source="config/default_settings.json">
+      <content>
+        {
+          "camera": {
+            "quality": "high",
+            "auto_save": true,
+            "location_tags": false,
+            "flash": "auto"
+          },
+          "ui": {
+            "dark_mode": false,
+            "language": "en",
+            "animations": true,
+            "sound_effects": true
+          },
+          "filters": {
+            "face_detection": true,
+            "ar_effects": true,
+            "beauty_mode": false
+          },
+          "storage": {
+            "auto_backup": false,
+            "compression": "medium",
+            "cache_limit": "500MB"
+          }
+        }
+      </content>
+    </asset>
+
+    <asset id="filter_configs" type="json" source="config/filters.json">
+      <content>
+        {
+          "vintage": {
+            "sepia": 0.8,
+            "contrast": 1.2,
+            "brightness": 0.9,
+            "saturation": 0.7
+          },
+          "beauty": {
+            "smoothing": 0.6,
+            "brightening": 0.3,
+            "eye_enhancement": 0.4,
+            "lip_enhancement": 0.2
+          },
+          "black_white": {
+            "grayscale": 1.0,
+            "contrast": 1.2,
+            "brightness": 1.1
+          }
+        }
+      </content>
+    </asset>
+
+    <asset id="ar_effects_config" type="json" source="config/ar_effects.json">
+      <content>
+        {
+          "cat_ears": {
+            "model": "cat_ears_model",
+            "face_points": ["forehead"],
+            "scale_factor": 1.0,
+            "tracking_smoothing": 0.8
+          },
+          "dog_face": {
+            "model": "dog_snout_model",
+            "face_points": ["nose", "mouth"],
+            "scale_factor": 0.8,
+            "tracking_smoothing": 0.9
+          }
+        }
+      </content>
+    </asset>
+  </asset-group>
+</assets>

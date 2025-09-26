@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="bottom_nav" type="id" />
+    <item name="fragment_container" type="id" />
+    <item name="nav_home" type="id" />
+    <item name="nav_camera" type="id" />
+    <item name="nav_history" type="id" />
+    <item name="nav_settings" type="id" />
+</resources>

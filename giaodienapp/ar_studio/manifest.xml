@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="3.0">
+  <metadata>
+    <name>PhotoMagic Camera AR</name>
+    <version>1.0.0</version>
+    <description>Professional camera app with AR effects and photo management</description>
+    <author>PhotoMagic Studio</author>
+    <category>Camera</category>
+    <platform>
+      <android minVersion="21" targetVersion="31"/>
+      <ios minVersion="12.0" targetVersion="15.0"/>
+    </platform>
+  </metadata>
+
+  <capabilities>
+    <camera front="true" back="true"/>
+    <microphone enabled="false"/>
+    <location enabled="true"/>
+    <storage enabled="true"/>
+    <gyroscope enabled="true"/>
+    <accelerometer enabled="true"/>
+    <touch enabled="true"/>
+  </capabilities>
+
+  <scene>
+    <environment type="world"/>
+    <lighting type="ambient"/>
+    <tracking type="face" multiple="false"/>
+  </scene>
+
+  <resources>
+    <textures path="textures/"/>
+    <materials path="materials/"/>
+    <models path="models/"/>
+    <scripts path="scripts/"/>
+    <sounds path="sounds/"/>
+  </resources>
+
+  <ui>
+    <theme>
+      <colors>
+        <primary>#6366F1</primary>
+        <secondary>#8B5CF6</secondary>
+        <background>linear-gradient(135deg, #667eea 0%, #764ba2 100%)</background>
+        <surface>rgba(255, 255, 255, 0.1)</surface>
+        <text-primary>#ffffff</text-primary>
+        <text-secondary>rgba(255, 255, 255, 0.7)</text-secondary>
+        <error>#EF4444</error>
+        <success>#10B981</success>
+      </colors>
+      <effects>
+        <glass-morphism enabled="true"/>
+        <animations enabled="true"/>
+        <transitions duration="300ms" easing="cubic-bezier(0.4, 0, 0.2, 1)"/>
+      </effects>
+    </theme>
+  </ui>
+
+  <build>
+    <target>
+      <platform>android</platform>
+      <platform>ios</platform>
+    </target>
+    <optimization level="high"/>
+    <compression enabled="true"/>
+  </build>
+</project>
