@@ -3,16 +3,16 @@
  * All rights reserved.
  * Project: My Application
  * File: PhotoAdapter.java
- * Last Modified: 26/9/2025 8:33
+ * Last Modified: 26/9/2025 9:38
  */
 
 package vn.edu.usth.myapplication;
 
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,13 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
-    private final List<Uri> photoList;
+    private final List<PhotoEntry> photoList;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
 
-    public PhotoAdapter(List<Uri> photoList) {
+    public PhotoAdapter(List<PhotoEntry> photoList) {
         this.photoList = photoList;
     }
 
@@ -40,19 +43,19 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        Uri photoUri = photoList.get(position);
+        PhotoEntry entry = photoList.get(position);
 
-        // Load image with Glide (we'll add this dependency)
         try {
             Glide.with(holder.itemView.getContext())
-                    .load(photoUri)
+                    .load(entry.getUri())
                     .transform(new RoundedCorners(16))
                     .centerCrop()
                     .into(holder.imageView);
         } catch (Exception e) {
-            // Fallback if Glide is not available
-            holder.imageView.setImageURI(photoUri);
+            holder.imageView.setImageURI(entry.getUri());
         }
+
+        holder.dateText.setText(dateFormat.format(entry.getDateTaken()));
     }
 
     @Override
@@ -62,10 +65,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     static class PhotoViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        TextView dateText;
 
         PhotoViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.image_photo);
+            dateText = itemView.findViewById(R.id.text_date);
         }
     }
 }

@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: EmbeddedCameraFragment.java
- * Last Modified: 26/9/2025 8:33
+ * Last Modified: 26/9/2025 9:38
  */
 
 package vn.edu.usth.myapplication;
@@ -137,9 +137,23 @@ public class EmbeddedCameraFragment extends Fragment {
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
-                        String msg = "Photo capture succeeded: " + output.getSavedUri();
                         Toast.makeText(requireContext(), "Photo saved!", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, msg);
+                        if (output.getSavedUri() != null) {
+                            long ts = System.currentTimeMillis();
+                            try {
+                                String[] proj = {MediaStore.Images.Media.DATE_TAKEN};
+                                try (android.database.Cursor c = requireContext().getContentResolver()
+                                        .query(output.getSavedUri(), proj, null, null, null)) {
+                                    if (c != null && c.moveToFirst()) {
+                                        int idx = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN);
+                                        long dateTaken = c.getLong(idx);
+                                        if (dateTaken > 0) ts = dateTaken;
+                                    }
+                                }
+                            } catch (Exception ignored) {
+                            }
+                            new PhotoDatabase(requireContext()).savePhoto(output.getSavedUri().toString(), ts);
+                        }
                     }
 
                     @Override
@@ -158,9 +172,11 @@ public class EmbeddedCameraFragment extends Fragment {
     }
 
     private void openGallery() {
-        // Navigate to history fragment to view photos
-        // This can be implemented based on your navigation structure
-        Toast.makeText(requireContext(), "Opening gallery...", Toast.LENGTH_SHORT).show();
+        View bottom = requireActivity().findViewById(R.id.bottom_navigation);
+        if (bottom instanceof com.google.android.material.bottomnavigation.BottomNavigationView) {
+            ((com.google.android.material.bottomnavigation.BottomNavigationView) bottom)
+                    .setSelectedItemId(R.id.nav_history);
+        }
     }
 
     private void showPermissionLayout() {
