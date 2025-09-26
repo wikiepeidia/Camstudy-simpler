@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2025 Pham The Minh
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: gradient_background.xml
+  ~ Last Modified: 1/10/2025 4:36
+  -->
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="270"
+        android:centerColor="#2A5298"
+        android:endColor="#4A90E2"
+        android:startColor="#1E3C72"
+        android:type="linear" />
+</shape>

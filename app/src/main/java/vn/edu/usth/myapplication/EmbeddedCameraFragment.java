@@ -3,22 +3,27 @@
  * All rights reserved.
  * Project: My Application
  * File: EmbeddedCameraFragment.java
- * Last Modified: 26/9/2025 8:33
+ * Last Modified: 1/10/2025 4:36
  */
 
 package vn.edu.usth.myapplication;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -26,7 +31,6 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -42,14 +46,22 @@ import java.util.concurrent.Executors;
 public class EmbeddedCameraFragment extends Fragment {
 
     private static final String TAG = "EmbeddedCameraFragment";
-    private static final int REQUEST_CODE_PERMISSIONS = 10;
-    private static final String[] REQUIRED_PERMISSIONS = {Manifest.permission.CAMERA};
 
     private ImageCapture imageCapture;
     private ExecutorService cameraExecutor;
     private PreviewView previewView;
     private View permissionLayout;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    startCamera();
+                } else {
+                    showPermissionLayout();
+                    Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -69,7 +81,7 @@ public class EmbeddedCameraFragment extends Fragment {
         btnCapture.setOnClickListener(v -> takePhoto());
         btnSwitchCamera.setOnClickListener(v -> switchCamera());
         btnGallery.setOnClickListener(v -> openGallery());
-        btnGrantPermission.setOnClickListener(v -> requestPermissions());
+        btnGrantPermission.setOnClickListener(v -> requestCameraPermission());
 
         cameraExecutor = Executors.newSingleThreadExecutor();
 
@@ -81,6 +93,34 @@ public class EmbeddedCameraFragment extends Fragment {
         }
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // If user returned from Settings and granted permission, start camera
+        if (allPermissionsGranted()) {
+            startCamera();
+        } else {
+            showPermissionLayout();
+        }
+    }
+
+    private void requestCameraPermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            // Direct user to app settings if they previously denied with "Don't ask again"
+            try {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", requireContext().getPackageName(), null));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } catch (Exception e) {
+                // Fallback to request again
+                requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
+        } else {
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+        }
     }
 
     private void startCamera() {
@@ -96,6 +136,8 @@ public class EmbeddedCameraFragment extends Fragment {
                 bindCameraUseCases(cameraProvider);
             } catch (Exception e) {
                 Log.e(TAG, "Use case binding failed", e);
+                Toast.makeText(requireContext(), "Failed to start camera", Toast.LENGTH_SHORT).show();
+                showPermissionLayout();
             }
         }, ContextCompat.getMainExecutor(requireContext()));
     }
@@ -112,6 +154,7 @@ public class EmbeddedCameraFragment extends Fragment {
                     this, cameraSelector, preview, imageCapture);
         } catch (Exception e) {
             Log.e(TAG, "Use case binding failed", e);
+            Toast.makeText(requireContext(), "Camera bind failed", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -123,7 +166,7 @@ public class EmbeddedCameraFragment extends Fragment {
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-        contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/PhotoMagic");
+        contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CamStudy");
 
         ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions
                 .Builder(requireContext().getContentResolver(),
@@ -137,9 +180,23 @@ public class EmbeddedCameraFragment extends Fragment {
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
-                        String msg = "Photo capture succeeded: " + output.getSavedUri();
                         Toast.makeText(requireContext(), "Photo saved!", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, msg);
+                        if (output.getSavedUri() != null) {
+                            long ts = System.currentTimeMillis();
+                            try {
+                                String[] proj = {MediaStore.Images.Media.DATE_TAKEN};
+                                try (android.database.Cursor c = requireContext().getContentResolver()
+                                        .query(output.getSavedUri(), proj, null, null, null)) {
+                                    if (c != null && c.moveToFirst()) {
+                                        int idx = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN);
+                                        long dateTaken = c.getLong(idx);
+                                        if (dateTaken > 0) ts = dateTaken;
+                                    }
+                                }
+                            } catch (Exception ignored) {
+                            }
+                            new PhotoDatabase(requireContext()).savePhoto(output.getSavedUri().toString(), ts);
+                        }
                     }
 
                     @Override
@@ -158,41 +215,21 @@ public class EmbeddedCameraFragment extends Fragment {
     }
 
     private void openGallery() {
-        // Navigate to history fragment to view photos
-        // This can be implemented based on your navigation structure
-        Toast.makeText(requireContext(), "Opening gallery...", Toast.LENGTH_SHORT).show();
+        View bottom = requireActivity().findViewById(R.id.bottom_navigation);
+        if (bottom instanceof com.google.android.material.bottomnavigation.BottomNavigationView) {
+            ((com.google.android.material.bottomnavigation.BottomNavigationView) bottom)
+                    .setSelectedItemId(R.id.nav_history);
+        }
+    }
+
+    private boolean allPermissionsGranted() {
+        return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     private void showPermissionLayout() {
         permissionLayout.setVisibility(View.VISIBLE);
         previewView.setVisibility(View.GONE);
-    }
-
-    private void requestPermissions() {
-        ActivityCompat.requestPermissions(requireActivity(), REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
-    }
-
-    private boolean allPermissionsGranted() {
-        for (String permission : REQUIRED_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(requireContext(), permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (allPermissionsGranted()) {
-                startCamera();
-            } else {
-                Toast.makeText(requireContext(),
-                        "Permissions not granted by the user.", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     @Override

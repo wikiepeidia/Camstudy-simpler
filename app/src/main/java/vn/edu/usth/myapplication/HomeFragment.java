@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: HomeFragment.java
- * Last Modified: 26/9/2025 8:33
+ * Last Modified: 26/9/2025 9:38
  */
 
 package vn.edu.usth.myapplication;
@@ -16,8 +16,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.card.MaterialCardView;
 
 public class HomeFragment extends Fragment {
@@ -32,13 +32,15 @@ public class HomeFragment extends Fragment {
         // Set up navigation for Take Photo card
         MaterialCardView takePhotoCard = view.findViewById(R.id.card_take_photo);
         takePhotoCard.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.nav_camera);
+            BottomNavigationView bottom = requireActivity().findViewById(R.id.bottom_navigation);
+            if (bottom != null) bottom.setSelectedItemId(R.id.nav_camera);
         });
 
         // Set up navigation for View History card
         MaterialCardView viewHistoryCard = view.findViewById(R.id.card_view_history);
         viewHistoryCard.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.nav_history);
+            BottomNavigationView bottom = requireActivity().findViewById(R.id.bottom_navigation);
+            if (bottom != null) bottom.setSelectedItemId(R.id.nav_history);
         });
 
         return view;

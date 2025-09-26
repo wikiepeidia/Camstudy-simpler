@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: fragment_home.xml
-  ~ Last Modified: 26/9/2025 8:33
+  ~ Last Modified: 1/10/2025 4:36
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -26,6 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
+            android:baselineAligned="false"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -91,7 +92,7 @@
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:src="@drawable/ic_camera"
-                    android:tint="@color/primary_color" />
+                    app:tint="@color/primary_color" />
 
             </LinearLayout>
 

@@ -3,17 +3,12 @@
  * All rights reserved.
  * Project: My Application
  * File: HistoryFragment.java
- * Last Modified: 26/9/2025 8:33
+ * Last Modified: 26/9/2025 9:38
  */
 
 package vn.edu.usth.myapplication;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +16,6 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,8 +27,8 @@ public class HistoryFragment extends Fragment {
 
     private RecyclerView recyclerPhotos;
     private LinearLayout emptyState;
-    private PhotoAdapter photoAdapter;
-    private final List<Uri> photoList = new ArrayList<>();
+    private final List<PhotoEntry> photoList = new ArrayList<>();
+    private PhotoHistoryAdapter photoAdapter;
 
     @Nullable
     @Override
@@ -53,51 +47,14 @@ public class HistoryFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        photoAdapter = new PhotoAdapter(photoList);
+        photoAdapter = new PhotoHistoryAdapter(photoList);
         recyclerPhotos.setLayoutManager(new GridLayoutManager(getContext(), 2));
         recyclerPhotos.setAdapter(photoAdapter);
     }
 
     private void loadPhotos() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            showEmptyState();
-            return;
-        }
-
         photoList.clear();
-
-        String[] projection = {
-                MediaStore.Images.Media._ID,
-                MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_TAKEN
-        };
-
-        String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-        String[] selectionArgs = {"%PhotoMagic%"};
-        String sortOrder = MediaStore.Images.Media.DATE_TAKEN + " DESC";
-
-        try (Cursor cursor = requireContext().getContentResolver().query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                projection,
-                selection,
-                selectionArgs,
-                sortOrder)) {
-
-            if (cursor != null) {
-                int idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
-
-                while (cursor.moveToNext()) {
-                    long id = cursor.getLong(idColumn);
-                    Uri contentUri = Uri.withAppendedPath(
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            String.valueOf(id));
-                    photoList.add(contentUri);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        photoList.addAll(new PhotoDatabase(requireContext()).getAll());
 
         if (photoList.isEmpty()) {
             showEmptyState();

@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: fragment_settings.xml
-  ~ Last Modified: 26/9/2025 8:33
+  ~ Last Modified: 1/10/2025 4:36
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -204,7 +204,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="About PhotoMagic"
+                    android:text="About CamStudy"
                     android:textColor="@color/primary_text"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -213,14 +213,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="Version 1.0.0"
+                    android:text="Version 1.10.25"
                     android:textColor="@color/secondary_text"
                     android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="A powerful camera app for capturing beautiful moments"
+                    android:text="A powerful camera app that identify your object, transate it and read it!"
                     android:textColor="@color/secondary_text"
                     android:textSize="14sp" />
 

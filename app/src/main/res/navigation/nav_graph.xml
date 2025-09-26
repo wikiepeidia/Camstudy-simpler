@@ -3,14 +3,32 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: nav_graph.xml
-  ~ Last Modified: 26/9/2025 8:33
+  ~ Last Modified: 1/10/2025 4:36
   -->
 
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/nav_home">
+    app:startDestination="@id/nav_login">
+
+    <fragment
+        android:id="@+id/nav_login"
+        android:name="vn.edu.usth.myapplication.LoginFragment"
+        android:label="@string/login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_nav_login_to_nav_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_login"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_register"
+        android:name="vn.edu.usth.myapplication.RegisterFragment"
+        android:label="Register"
+        tools:layout="@layout/fragment_register" />
 
     <fragment
         android:id="@+id/nav_home"

@@ -89,7 +89,7 @@ lint/tmp/
 
 # NDK
 obj/
-
+example/
 # OS-specific files
 .DS_Store
 .DS_Store?
