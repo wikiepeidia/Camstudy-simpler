@@ -1,45 +1,50 @@
+/*
+ * Copyright (c) 2025 Pham The Minh
+ * All rights reserved.
+ * Project: My Application
+ * File: MainActivity.java
+ * Last Modified: 26/9/2025 8:33
+ */
+
 package vn.edu.usth.myapplication;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import vn.edu.usth.myapplication.databinding.ActivityMainBinding;
+
 public class MainActivity extends AppCompatActivity {
+
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        bottomNav.setOnItemSelectedListener(item -> {
-            Fragment selected = null;
-            int itemId = item.getItemId();
+        // Get the NavHostFragment
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.nav_host_fragment);
 
-            if (itemId == R.id.nav_home) {
-                selected = new HomeFragment();
-            } else if (itemId == R.id.nav_history) {
-                selected = new HistoryFragment();
-            } else if (itemId == R.id.nav_settings) {
-                selected = new SettingsFragment();
-            }
+        if (navHostFragment != null) {
+            NavController navController = navHostFragment.getNavController();
 
-            if (selected != null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, selected)
-                        .commit();
-            }
+            // Setup bottom navigation
+            BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+            NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        }
 
-            return true;
-        });
-
-        // Load HomeFragment by default
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, new HomeFragment())
-                .commit();
+        // Hide action bar for cleaner UI like the HTML app
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
     }
 }

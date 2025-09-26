@@ -1,7 +1,14 @@
+/*
+ * Copyright (c) 2025 Pham The Minh
+ * All rights reserved.
+ * Project: My Application
+ * File: HomeFragment.java
+ * Last Modified: 26/9/2025 8:33
+ */
+
 package vn.edu.usth.myapplication;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,13 +16,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 
 public class HomeFragment extends Fragment {
-
-    private static final String TAG = "HomeFragment";
 
     @Nullable
     @Override
@@ -24,46 +29,18 @@ public class HomeFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        MaterialButton btnCamera = view.findViewById(R.id.btnCamera);
-        MaterialButton btnHistory = view.findViewById(R.id.btnHistory);
-
-        if (btnCamera == null) {
-            Log.e(TAG, "btnCamera is null!");
-            return view;
-        }
-        if (btnHistory == null) {
-            Log.e(TAG, "btnHistory is null!");
-            return view;
-        }
-
-        // Take Photo button - opens embedded camera
-        btnCamera.setOnClickListener(v -> {
-            Log.d(TAG, "Camera button clicked - opening embedded camera!");
-            openEmbeddedCamera();
+        // Set up navigation for Take Photo card
+        MaterialCardView takePhotoCard = view.findViewById(R.id.card_take_photo);
+        takePhotoCard.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.nav_camera);
         });
 
-        // View History button - switches to history tab
-        btnHistory.setOnClickListener(v -> {
-            Log.d(TAG, "History button clicked!");
-            BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_nav);
-            if (bottomNav != null) {
-                bottomNav.setSelectedItemId(R.id.nav_history);
-            } else {
-                Log.e(TAG, "Bottom navigation not found!");
-            }
+        // Set up navigation for View History card
+        MaterialCardView viewHistoryCard = view.findViewById(R.id.card_view_history);
+        viewHistoryCard.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.nav_history);
         });
 
-        Log.d(TAG, "HomeFragment setup complete");
         return view;
-    }
-
-    private void openEmbeddedCamera() {
-        // Navigate to embedded camera fragment
-        EmbeddedCameraFragment cameraFragment = new EmbeddedCameraFragment();
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, cameraFragment)
-                .addToBackStack("camera")
-                .commit();
     }
 }

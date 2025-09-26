@@ -1,3 +1,12 @@
+
+/*
+ * Copyright (c) 2025 Pham The Minh
+ * All rights reserved.
+ * Project: My Application
+ * File: build.gradle.kts
+ * Last Modified: 26/9/2025 8:33
+ */
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -14,6 +23,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding = true
     }
 
     buildTypes {
@@ -37,11 +50,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.camera.core)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-    implementation(libs.material.v1100)
+
+    // Navigation components
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
 
     // CameraX dependencies for embedded camera
     implementation(libs.camerax.core)
@@ -49,4 +61,11 @@ dependencies {
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
 
+    // Image loading library
+    implementation(libs.glide)
+
+    // Test dependencies
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?><!--
-   Sample backup rules file; uncomment and customize as necessary.
-   See https://developer.android.com/guide/topics/data/autobackup
-   for details.
-   Note: This file is ignored for devices older than API 31
-   See https://developer.android.com/about/versions/12/backup-restore
--->
+  ~ Copyright (c) 2025 Pham The Minh
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: backup_rules.xml
+  ~ Last Modified: 26/9/2025 8:33
+  -->
+
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <!-- Exclude temporary files and cache -->
+    <exclude
+        domain="file"
+        path="tmp/" />
+    <exclude domain="cache" />
 </full-backup-content>
+

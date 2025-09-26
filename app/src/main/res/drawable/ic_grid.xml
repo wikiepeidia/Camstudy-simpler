@@ -1,0 +1,24 @@
+<!--
+  ~ Copyright (c) 2025 Pham The Minh
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: ic_grid.xml
+  ~ Last Modified: 26/9/2025 8:33
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?attr/colorOnSurface"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M4,4v2h16V4H4zM4,8v2h16V8H4zM4,12v2h16v-2H4zM4,16v2h16v-2H4zM4,20v2h16v-2H4z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M6,6h12v12H6z"
+        android:strokeWidth="1"
+        android:strokeColor="@android:color/white" />
+</vector>
+
