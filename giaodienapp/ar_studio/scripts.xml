@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2025 Pham The Minh
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: scripts.xml
+  ~ Last Modified: 26/9/2025 3:10
+  -->
+
 <scripts version="3.0">
   <!-- Main Application Controller -->
   <script type="controller" id="app_controller">

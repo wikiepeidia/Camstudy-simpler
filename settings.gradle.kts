@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2025 Pham The Minh
+ * All rights reserved.
+ * Project: My Application
+ * File: settings.gradle.kts
+ * Last Modified: 26/9/2025 3:10
+ */
+
 pluginManagement {
     repositories {
         google {

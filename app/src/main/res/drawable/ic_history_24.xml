@@ -1,3 +1,11 @@
+<!--
+  ~ Copyright (c) 2025 Pham The Minh
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: ic_history_24.xml
+  ~ Last Modified: 26/9/2025 3:10
+  -->
+
 <vector android:height="24dp" android:tint="#000000"
     android:viewportHeight="24" android:viewportWidth="24"
     android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">

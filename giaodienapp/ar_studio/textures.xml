@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2025 Pham The Minh
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: textures.xml
+  ~ Last Modified: 26/9/2025 3:10
+  -->
+
 <textures version="3.0">
   <!-- UI Textures -->
   <texture-group name="ui_elements">

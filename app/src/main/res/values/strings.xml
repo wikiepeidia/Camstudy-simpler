@@ -1,3 +1,11 @@
+<!--
+  ~ Copyright (c) 2025 Pham The Minh
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: strings.xml
+  ~ Last Modified: 26/9/2025 3:10
+  -->
+
 <resources>
     <string name="app_name">UI TEST</string>
 </resources>
