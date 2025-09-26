@@ -22,8 +22,6 @@ public class MainActivity extends AppCompatActivity {
 
             if (itemId == R.id.nav_home) {
                 selected = new HomeFragment();
-            } else if (itemId == R.id.nav_camera) {
-                selected = new CameraFragment();
             } else if (itemId == R.id.nav_history) {
                 selected = new HistoryFragment();
             } else if (itemId == R.id.nav_settings) {
