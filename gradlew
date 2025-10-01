@@ -1,11 +1,11 @@
 #!/usr/bin/env sh
 
 #
-# Copyright (c) 2025 Pham The Minh
+# Copyright (c) 2025 Android project OpenVision API
 # All rights reserved.
 # Project: My Application
 # File: gradlew
-# Last Modified: 26/9/2025 3:10
+# Last Modified: 1/10/2025 4:38
 #
 
 ##############################################################################
