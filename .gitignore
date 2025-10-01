@@ -98,7 +98,8 @@ example/
 .Trashes
 ehthumbs.db
 Thumbs.db
-
+# python conversion
+python
 # Misc
 *.tmp
 *.bak

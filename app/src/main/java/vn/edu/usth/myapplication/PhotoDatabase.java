@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: PhotoDatabase.java
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 1/10/2025 9:20
  */
 
 package vn.edu.usth.myapplication;
@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,7 +47,7 @@ public class PhotoDatabase {
             }
         }
         // newest first
-        Collections.sort(result, (a, b) -> Long.compare(b.getDateTaken(), a.getDateTaken()));
+        result.sort((a, b) -> Long.compare(b.getDateTaken(), a.getDateTaken()));
         return result;
     }
 

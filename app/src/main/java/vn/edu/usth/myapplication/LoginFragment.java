@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: LoginFragment.java
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 1/10/2025 9:20
  */
 
 package vn.edu.usth.myapplication;
@@ -54,10 +54,13 @@ public class LoginFragment extends Fragment {
             String savedPassword = prefs.getString("PASSWORD", "");
 
             if (email.equals(savedEmail) && password.equals(savedPassword)) {
+                // mark as logged in
+                prefs.edit().putBoolean("LOGGED_IN", true).apply();
+
                 Toast.makeText(getContext(), "Login success!", Toast.LENGTH_SHORT).show();
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
                 NavOptions navOptions = new NavOptions.Builder()
-                        .setPopUpTo(R.id.nav_login, true)
+                        .setPopUpTo(R.id.nav_welcome, true)
                         .build();
                 navController.navigate(R.id.nav_home, null, navOptions);
             } else {

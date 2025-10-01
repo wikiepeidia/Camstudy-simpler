@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: strings.xml
-  ~ Last Modified: 1/10/2025 4:38
+  ~ Last Modified: 1/10/2025 9:20
   -->
 
 <resources>
@@ -35,4 +35,10 @@
     <string name="full_name">Full Name</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="back_to_login">Back to Login</string>
+
+    <!-- Welcome screen -->
+    <string name="tex1">Welcome to</string>
+    <string name="tex2"> CamStudy</string>
+    <string name="tex3">Explore the world through your camera</string>
+    <string name="start">Start</string>
 </resources>

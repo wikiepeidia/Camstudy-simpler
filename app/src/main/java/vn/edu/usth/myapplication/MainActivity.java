@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: MainActivity.java
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 1/10/2025 9:20
  */
 
 package vn.edu.usth.myapplication;
@@ -42,10 +42,10 @@ public class MainActivity extends AppCompatActivity {
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
             NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
-            // Hide bottom navigation on Login and Register screens
+            // Hide bottom navigation on Welcome, Login and Register screens
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
                 int id = destination.getId();
-                if (id == R.id.nav_login || id == R.id.nav_register) {
+                if (id == R.id.nav_welcome || id == R.id.nav_login || id == R.id.nav_register) {
                     bottomNavigationView.setVisibility(View.GONE);
                 } else {
                     bottomNavigationView.setVisibility(View.VISIBLE);

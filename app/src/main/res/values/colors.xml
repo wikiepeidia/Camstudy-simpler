@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: colors.xml
-  ~ Last Modified: 1/10/2025 4:38
+  ~ Last Modified: 1/10/2025 9:20
   -->
 
 <resources>
@@ -19,5 +19,5 @@
     <color name="primary_text">#FF212121</color>
     <color name="secondary_text">#FF757575</color>
     <color name="card_background">#FFFFFFFF</color>
+    <color name="orange">#FFA500</color>
 </resources>
-

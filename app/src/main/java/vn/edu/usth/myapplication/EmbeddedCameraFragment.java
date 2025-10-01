@@ -3,19 +3,19 @@
  * All rights reserved.
  * Project: My Application
  * File: EmbeddedCameraFragment.java
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 1/10/2025 9:20
  */
 
 package vn.edu.usth.myapplication;
 
 import android.Manifest;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,12 +33,17 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,13 +58,20 @@ public class EmbeddedCameraFragment extends Fragment {
     private View permissionLayout;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
+    private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                boolean allGranted = true;
+                for (Boolean granted : result.values()) {
+                    if (granted == null || !granted) {
+                        allGranted = false;
+                        break;
+                    }
+                }
+                if (allGranted) {
                     startCamera();
                 } else {
                     showPermissionLayout();
-                    Toast.makeText(requireContext(), "Camera permission denied", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Permissions denied", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -81,7 +93,7 @@ public class EmbeddedCameraFragment extends Fragment {
         btnCapture.setOnClickListener(v -> takePhoto());
         btnSwitchCamera.setOnClickListener(v -> switchCamera());
         btnGallery.setOnClickListener(v -> openGallery());
-        btnGrantPermission.setOnClickListener(v -> requestCameraPermission());
+        btnGrantPermission.setOnClickListener(v -> requestAppPermissions());
 
         cameraExecutor = Executors.newSingleThreadExecutor();
 
@@ -106,21 +118,14 @@ public class EmbeddedCameraFragment extends Fragment {
         }
     }
 
-    private void requestCameraPermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-            // Direct user to app settings if they previously denied with "Don't ask again"
-            try {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.fromParts("package", requireContext().getPackageName(), null));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            } catch (Exception e) {
-                // Fallback to request again
-                requestPermissionLauncher.launch(Manifest.permission.CAMERA);
-            }
-        } else {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+    private void requestAppPermissions() {
+        List<String> req = new ArrayList<>();
+        req.add(Manifest.permission.CAMERA);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // Legacy external storage write is required to save to public Pictures on < 29
+            req.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
+        requestPermissionsLauncher.launch(req.toArray(new String[0]));
     }
 
     private void startCamera() {
@@ -163,17 +168,35 @@ public class EmbeddedCameraFragment extends Fragment {
 
         String name = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
                 .format(System.currentTimeMillis());
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-        contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CamStudy");
 
-        ImageCapture.OutputFileOptions outputOptions = new ImageCapture.OutputFileOptions
-                .Builder(requireContext().getContentResolver(),
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues)
-                .build();
+        ImageCapture.OutputFileOptions outputOptions;
+        Uri savedContentUri = null;
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Use scoped storage via MediaStore
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/CamStudy");
+
+            outputOptions = new ImageCapture.OutputFileOptions
+                    .Builder(requireContext().getContentResolver(),
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    contentValues)
+                    .build();
+        } else {
+            // Legacy external storage: save to public Pictures/CamStudy
+            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "CamStudy");
+            if (!dir.exists() && !dir.mkdirs()) {
+                Toast.makeText(requireContext(), "Cannot access storage", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            File photoFile = new File(dir, name + ".jpg");
+            outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+            savedContentUri = Uri.fromFile(photoFile);
+        }
+
+        Uri finalSavedContentUri = savedContentUri; // may be null for Q+
         imageCapture.takePicture(
                 outputOptions,
                 ContextCompat.getMainExecutor(requireContext()),
@@ -181,12 +204,13 @@ public class EmbeddedCameraFragment extends Fragment {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
                         Toast.makeText(requireContext(), "Photo saved!", Toast.LENGTH_SHORT).show();
-                        if (output.getSavedUri() != null) {
+                        Uri uri = output.getSavedUri() != null ? output.getSavedUri() : finalSavedContentUri;
+                        if (uri != null) {
                             long ts = System.currentTimeMillis();
                             try {
                                 String[] proj = {MediaStore.Images.Media.DATE_TAKEN};
                                 try (android.database.Cursor c = requireContext().getContentResolver()
-                                        .query(output.getSavedUri(), proj, null, null, null)) {
+                                        .query(uri, proj, null, null, null)) {
                                     if (c != null && c.moveToFirst()) {
                                         int idx = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN);
                                         long dateTaken = c.getLong(idx);
@@ -195,7 +219,14 @@ public class EmbeddedCameraFragment extends Fragment {
                                 }
                             } catch (Exception ignored) {
                             }
-                            new PhotoDatabase(requireContext()).savePhoto(output.getSavedUri().toString(), ts);
+                            // Trigger media scan on legacy to make it appear in gallery apps
+                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                                try {
+                                    android.media.MediaScannerConnection.scanFile(requireContext(), new String[]{uri.getPath()}, new String[]{"image/jpeg"}, null);
+                                } catch (Exception ignored) {
+                                }
+                            }
+                            new PhotoDatabase(requireContext()).savePhoto(uri.toString(), ts);
                         }
                     }
 
@@ -215,16 +246,20 @@ public class EmbeddedCameraFragment extends Fragment {
     }
 
     private void openGallery() {
-        View bottom = requireActivity().findViewById(R.id.bottom_navigation);
-        if (bottom instanceof com.google.android.material.bottomnavigation.BottomNavigationView) {
-            ((com.google.android.material.bottomnavigation.BottomNavigationView) bottom)
-                    .setSelectedItemId(R.id.nav_history);
-        }
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(R.id.nav_history);
     }
 
     private boolean allPermissionsGranted() {
-        return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+        boolean cam = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED;
+        if (!cam) return false;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            // Need write for legacy public external storage
+            return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
     }
 
     private void showPermissionLayout() {
