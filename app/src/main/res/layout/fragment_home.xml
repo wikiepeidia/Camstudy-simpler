@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: fragment_home.xml
-  ~ Last Modified: 5/10/2025 3:34
+  ~ Last Modified: 5/10/2025 3:59
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -91,7 +91,7 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/ic_camera"
+                    android:src="@drawable/logoapp"
                     app:tint="@color/primary_color" />
 
             </LinearLayout>
