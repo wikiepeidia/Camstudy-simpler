@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: EmbeddedCameraFragment.java
- * Last Modified: 1/10/2025 9:20
+ * Last Modified: 5/10/2025 2:54
  */
 
 package vn.edu.usth.myapplication;
@@ -25,6 +25,8 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -57,6 +59,8 @@ public class EmbeddedCameraFragment extends Fragment {
     private PreviewView previewView;
     private View permissionLayout;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+    private Camera camera;
+    private CameraControl cameraControl;
 
     private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -141,30 +145,59 @@ public class EmbeddedCameraFragment extends Fragment {
                 bindCameraUseCases(cameraProvider);
             } catch (Exception e) {
                 Log.e(TAG, "Use case binding failed", e);
-                Toast.makeText(requireContext(), "Failed to start camera", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Failed to start camera: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 showPermissionLayout();
             }
         }, ContextCompat.getMainExecutor(requireContext()));
     }
 
     private void bindCameraUseCases(ProcessCameraProvider cameraProvider) {
-        Preview preview = new Preview.Builder().build();
+        Preview preview = new Preview.Builder()
+                .build();
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
 
-        imageCapture = new ImageCapture.Builder().build();
+        // Build ImageCapture with better error handling and compatibility
+        imageCapture = new ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .setTargetRotation(previewView.getDisplay().getRotation())
+                .build();
 
         try {
             cameraProvider.unbindAll();
-            cameraProvider.bindToLifecycle(
+            camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture);
+
+            // Get camera control for flash
+            cameraControl = camera.getCameraControl();
+
+            // Apply flash settings
+            updateFlashMode();
+
         } catch (Exception e) {
             Log.e(TAG, "Use case binding failed", e);
-            Toast.makeText(requireContext(), "Camera bind failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), "Camera bind failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateFlashMode() {
+        if (cameraControl != null && imageCapture != null) {
+            boolean flashEnabled = SettingsFragment.isFlashEnabled(requireContext());
+            if (flashEnabled) {
+                imageCapture.setFlashMode(ImageCapture.FLASH_MODE_ON);
+            } else {
+                imageCapture.setFlashMode(ImageCapture.FLASH_MODE_OFF);
+            }
         }
     }
 
     private void takePhoto() {
-        if (imageCapture == null) return;
+        if (imageCapture == null) {
+            Toast.makeText(requireContext(), "Camera is not ready", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Update flash mode before capture
+        updateFlashMode();
 
         String name = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
                 .format(System.currentTimeMillis());
@@ -172,31 +205,37 @@ public class EmbeddedCameraFragment extends Fragment {
         ImageCapture.OutputFileOptions outputOptions;
         Uri savedContentUri = null;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Use scoped storage via MediaStore
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-            contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/CamStudy");
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Use scoped storage via MediaStore
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/CamStudy");
 
-            outputOptions = new ImageCapture.OutputFileOptions
-                    .Builder(requireContext().getContentResolver(),
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    contentValues)
-                    .build();
-        } else {
-            // Legacy external storage: save to public Pictures/CamStudy
-            File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "CamStudy");
-            if (!dir.exists() && !dir.mkdirs()) {
-                Toast.makeText(requireContext(), "Cannot access storage", Toast.LENGTH_SHORT).show();
-                return;
+                outputOptions = new ImageCapture.OutputFileOptions
+                        .Builder(requireContext().getContentResolver(),
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues)
+                        .build();
+            } else {
+                // Legacy external storage: save to public Pictures/CamStudy
+                File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "CamStudy");
+                if (!dir.exists() && !dir.mkdirs()) {
+                    Toast.makeText(requireContext(), "Cannot access storage", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                File photoFile = new File(dir, name + ".jpg");
+                outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+                savedContentUri = Uri.fromFile(photoFile);
             }
-            File photoFile = new File(dir, name + ".jpg");
-            outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
-            savedContentUri = Uri.fromFile(photoFile);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to create output options", e);
+            Toast.makeText(requireContext(), "Failed to prepare storage: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        Uri finalSavedContentUri = savedContentUri; // may be null for Q+
+        Uri finalSavedContentUri = savedContentUri;
         imageCapture.takePicture(
                 outputOptions,
                 ContextCompat.getMainExecutor(requireContext()),
@@ -217,23 +256,36 @@ public class EmbeddedCameraFragment extends Fragment {
                                         if (dateTaken > 0) ts = dateTaken;
                                     }
                                 }
-                            } catch (Exception ignored) {
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to get date taken", e);
                             }
                             // Trigger media scan on legacy to make it appear in gallery apps
                             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                                 try {
                                     android.media.MediaScannerConnection.scanFile(requireContext(), new String[]{uri.getPath()}, new String[]{"image/jpeg"}, null);
-                                } catch (Exception ignored) {
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Media scan failed", e);
                                 }
                             }
-                            new PhotoDatabase(requireContext()).savePhoto(uri.toString(), ts);
+                            try {
+                                new PhotoDatabase(requireContext()).savePhoto(uri.toString(), ts);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Failed to save to database", e);
+                            }
                         }
                     }
 
                     @Override
                     public void onError(@NonNull ImageCaptureException exception) {
                         Log.e(TAG, "Photo capture failed: " + exception.getMessage(), exception);
-                        Toast.makeText(requireContext(), "Photo capture failed!", Toast.LENGTH_SHORT).show();
+                        String errorMsg = "Photo capture failed!";
+                        if (exception.getMessage() != null && exception.getMessage().contains("CAMERA_CLOSED")) {
+                            errorMsg = "Camera was closed. Please try again.";
+                            startCamera(); // Restart camera
+                        } else if (exception.getMessage() != null && exception.getMessage().contains("FILE_IO_ERROR")) {
+                            errorMsg = "Storage error. Check storage permissions.";
+                        }
+                        Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show();
                     }
                 }
         );

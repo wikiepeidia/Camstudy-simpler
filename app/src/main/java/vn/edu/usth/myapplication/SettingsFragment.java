@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: SettingsFragment.java
- * Last Modified: 5/10/2025 2:40
+ * Last Modified: 5/10/2025 2:54
  */
 
 package vn.edu.usth.myapplication;
@@ -11,6 +11,7 @@ package vn.edu.usth.myapplication;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,9 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
+
+import java.io.File;
+import java.util.Locale;
 
 public class SettingsFragment extends Fragment {
 
@@ -77,16 +81,55 @@ public class SettingsFragment extends Fragment {
 
     private void clearCache() {
         try {
-            // Clear app cache
-            boolean deleted = requireContext().getCacheDir().delete();
-            if (deleted) {
-                Toast.makeText(requireContext(), "Cache cleared successfully", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(requireContext(), "Failed to clear cache", Toast.LENGTH_SHORT).show();
+            File cacheDir = requireContext().getCacheDir();
+            File externalCacheDir = requireContext().getExternalCacheDir();
+
+            long deletedSize = 0;
+
+            // Clear internal cache
+            if (cacheDir != null && cacheDir.isDirectory()) {
+                deletedSize += deleteDir(cacheDir);
             }
+
+            // Clear external cache
+            if (externalCacheDir != null && externalCacheDir.isDirectory()) {
+                deletedSize += deleteDir(externalCacheDir);
+            }
+
+            String sizeStr = formatFileSize(deletedSize);
+            Toast.makeText(requireContext(), "Cache cleared: " + sizeStr, Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(requireContext(), "Failed to clear cache", Toast.LENGTH_SHORT).show();
+            Log.e("SettingsFragment", "Failed to clear cache", e);
+            Toast.makeText(requireContext(), "Failed to clear cache: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private long deleteDir(File dir) {
+        long deletedSize = 0;
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            if (children != null) {
+                for (String child : children) {
+                    File file = new File(dir, child);
+                    if (file.isDirectory()) {
+                        deletedSize += deleteDir(file);
+                    } else {
+                        long size = file.length();
+                        if (file.delete()) {
+                            deletedSize += size;
+                        }
+                    }
+                }
+            }
+        }
+        return deletedSize;
+    }
+
+    private String formatFileSize(long size) {
+        if (size < 1024) return size + " B";
+        int exp = (int) (Math.log(size) / Math.log(1024));
+        String pre = "KMGTPE".charAt(exp - 1) + "";
+        return String.format(Locale.US, "%.1f %sB", size / Math.pow(1024, exp), pre);
     }
 
     private void showLogoutDialog() {

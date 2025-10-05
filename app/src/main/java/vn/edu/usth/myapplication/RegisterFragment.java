@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: RegisterFragment.java
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 5/10/2025 2:54
  */
 
 package vn.edu.usth.myapplication;
@@ -52,28 +52,61 @@ public class RegisterFragment extends Fragment {
             String password = edtPassword.getText().toString().trim();
             String confirmPassword = edtConfirmPassword.getText().toString().trim();
 
-            if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
-                Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
+            // Comprehensive validation
+            if (TextUtils.isEmpty(email)) {
+                edtEmail.setError("Email is required");
+                edtEmail.requestFocus();
                 return;
             }
 
             if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(getContext(), "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                edtEmail.setError("Please enter a valid email");
+                edtEmail.requestFocus();
+                return;
+            }
+
+            if (TextUtils.isEmpty(password)) {
+                edtPassword.setError("Password is required");
+                edtPassword.requestFocus();
+                return;
+            }
+
+            if (password.length() < 6) {
+                edtPassword.setError("Password must be at least 6 characters");
+                edtPassword.requestFocus();
+                return;
+            }
+
+            if (TextUtils.isEmpty(confirmPassword)) {
+                edtConfirmPassword.setError("Please confirm your password");
+                edtConfirmPassword.requestFocus();
                 return;
             }
 
             if (!password.equals(confirmPassword)) {
-                Toast.makeText(getContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
+                edtConfirmPassword.setError("Passwords do not match");
+                edtConfirmPassword.requestFocus();
                 return;
             }
 
-            requireActivity().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE)
-                    .edit()
+            // Check if email already exists
+            android.content.SharedPreferences prefs = requireActivity().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE);
+            String existingEmail = prefs.getString("EMAIL", "");
+
+            if (!TextUtils.isEmpty(existingEmail) && existingEmail.equals(email)) {
+                edtEmail.setError("Email already registered");
+                edtEmail.requestFocus();
+                Toast.makeText(getContext(), "This email is already registered. Please login instead.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Save user data
+            prefs.edit()
                     .putString("EMAIL", email)
                     .putString("PASSWORD", password)
                     .apply();
 
-            Toast.makeText(getContext(), "Register success!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Registration successful! Please login", Toast.LENGTH_SHORT).show();
 
             NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
             navController.popBackStack();
