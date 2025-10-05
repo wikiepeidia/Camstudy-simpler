@@ -2,7 +2,7 @@
   ~ Copyright (c) 2025 Android project OpenVision API
   ~ All rights reserved.
   ~ Project: My Application
-  ~ File: ic_arrow_back.xml
+  ~ File: flash_on_24px.xml
   ~ Last Modified: 5/10/2025 3:59
   -->
 
@@ -11,9 +11,8 @@
     android:height="24dp"
     android:viewportWidth="960"
     android:viewportHeight="960"
-    android:tint="?attr/colorControlNormal"
-    android:autoMirrored="true">
+    android:tint="?attr/colorControlNormal">
     <path
         android:fillColor="@android:color/white"
-        android:pathData="M313,520L537,744L480,800L160,480L480,160L537,216L313,440L800,440L800,520L313,520Z" />
+        android:pathData="M480,624L608,440L494,440L574,160L360,160L360,480L480,480L480,624ZM400,880L400,560L280,560L280,80L680,80L600,360L760,360L400,880ZM480,480L480,480L360,480L360,480L480,480L480,480L480,480Z" />
 </vector>
