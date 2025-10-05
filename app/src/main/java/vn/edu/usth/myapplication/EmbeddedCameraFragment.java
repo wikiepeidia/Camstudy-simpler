@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: EmbeddedCameraFragment.java
- * Last Modified: 5/10/2025 2:54
+ * Last Modified: 5/10/2025 3:34
  */
 
 package vn.edu.usth.myapplication;
@@ -18,8 +18,12 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -27,10 +31,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
+import androidx.camera.core.ZoomState;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
@@ -61,6 +67,13 @@ public class EmbeddedCameraFragment extends Fragment {
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
     private Camera camera;
     private CameraControl cameraControl;
+    private CameraInfo cameraInfo;
+    private SeekBar zoomSlider;
+    private TextView txtZoomLevel;
+    private View zoomControlLayout;
+    private Button btnZoom1x, btnZoom2x;
+    private ScaleGestureDetector scaleGestureDetector;
+    private float currentZoomRatio = 1.0f;
 
     private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -86,6 +99,11 @@ public class EmbeddedCameraFragment extends Fragment {
 
         previewView = view.findViewById(R.id.preview_view);
         permissionLayout = view.findViewById(R.id.permission_layout);
+        zoomSlider = view.findViewById(R.id.zoom_slider);
+        txtZoomLevel = view.findViewById(R.id.txt_zoom_level);
+        zoomControlLayout = view.findViewById(R.id.zoom_control);
+        btnZoom1x = view.findViewById(R.id.btn_zoom_1x);
+        btnZoom2x = view.findViewById(R.id.btn_zoom_2x);
 
         // Camera controls
         FloatingActionButton btnCapture = view.findViewById(R.id.btn_capture);
@@ -99,6 +117,10 @@ public class EmbeddedCameraFragment extends Fragment {
         btnGallery.setOnClickListener(v -> openGallery());
         btnGrantPermission.setOnClickListener(v -> requestAppPermissions());
 
+        // Set up zoom controls
+        setupZoomControl();
+        setupPinchToZoom();
+
         cameraExecutor = Executors.newSingleThreadExecutor();
 
         // Check permissions and start camera
@@ -109,6 +131,94 @@ public class EmbeddedCameraFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void setupZoomControl() {
+        zoomSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (cameraControl != null && cameraInfo != null) {
+                    float minZoom = cameraInfo.getZoomState().getValue().getMinZoomRatio();
+                    float maxZoom = cameraInfo.getZoomState().getValue().getMaxZoomRatio();
+
+                    // Calculate zoom ratio from progress (0-100)
+                    currentZoomRatio = minZoom + (progress / 100f) * (maxZoom - minZoom);
+
+                    // Apply zoom
+                    cameraControl.setZoomRatio(currentZoomRatio);
+
+                    // Update zoom level text
+                    txtZoomLevel.setText(String.format(Locale.US, "%.1fx", currentZoomRatio));
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        // Zoom preset buttons
+        btnZoom1x.setOnClickListener(v -> setZoomRatio(1.0f));
+        btnZoom2x.setOnClickListener(v -> setZoomRatio(2.0f));
+    }
+
+    private void setupPinchToZoom() {
+        scaleGestureDetector = new ScaleGestureDetector(requireContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(ScaleGestureDetector detector) {
+                if (cameraInfo != null && cameraControl != null) {
+                    float scale = detector.getScaleFactor();
+                    float minZoom = cameraInfo.getZoomState().getValue().getMinZoomRatio();
+                    float maxZoom = cameraInfo.getZoomState().getValue().getMaxZoomRatio();
+
+                    // Calculate new zoom ratio
+                    currentZoomRatio *= scale;
+                    currentZoomRatio = Math.max(minZoom, Math.min(currentZoomRatio, maxZoom));
+
+                    // Apply zoom
+                    cameraControl.setZoomRatio(currentZoomRatio);
+
+                    // Update UI
+                    updateZoomUI(currentZoomRatio, minZoom, maxZoom);
+                }
+                return true;
+            }
+        });
+
+        previewView.setOnTouchListener((v, event) -> {
+            scaleGestureDetector.onTouchEvent(event);
+            return true;
+        });
+    }
+
+    private void setZoomRatio(float targetZoom) {
+        if (cameraControl != null && cameraInfo != null) {
+            float minZoom = cameraInfo.getZoomState().getValue().getMinZoomRatio();
+            float maxZoom = cameraInfo.getZoomState().getValue().getMaxZoomRatio();
+
+            // Clamp target zoom to valid range
+            targetZoom = Math.max(minZoom, Math.min(targetZoom, maxZoom));
+            currentZoomRatio = targetZoom;
+
+            // Apply zoom
+            cameraControl.setZoomRatio(targetZoom);
+
+            // Update UI
+            updateZoomUI(targetZoom, minZoom, maxZoom);
+        }
+    }
+
+    private void updateZoomUI(float zoomRatio, float minZoom, float maxZoom) {
+        // Update text
+        txtZoomLevel.setText(String.format(Locale.US, "%.1fx", zoomRatio));
+
+        // Update slider
+        int progress = (int) ((zoomRatio - minZoom) / (maxZoom - minZoom) * 100);
+        zoomSlider.setProgress(progress);
     }
 
     @Override
@@ -167,15 +277,44 @@ public class EmbeddedCameraFragment extends Fragment {
             camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture);
 
-            // Get camera control for flash
+            // Get camera control for flash and zoom
             cameraControl = camera.getCameraControl();
+            cameraInfo = camera.getCameraInfo();
 
             // Apply flash settings
             updateFlashMode();
 
+            // Initialize zoom control
+            initializeZoomControl();
+
         } catch (Exception e) {
             Log.e(TAG, "Use case binding failed", e);
             Toast.makeText(requireContext(), "Camera bind failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void initializeZoomControl() {
+        if (cameraInfo != null) {
+            ZoomState zoomState = cameraInfo.getZoomState().getValue();
+            if (zoomState != null) {
+                float minZoom = zoomState.getMinZoomRatio();
+                float maxZoom = zoomState.getMaxZoomRatio();
+
+                // Reset zoom to minimum
+                currentZoomRatio = minZoom;
+                zoomSlider.setProgress(0);
+                txtZoomLevel.setText(String.format(Locale.US, "%.1fx", minZoom));
+
+                // Show zoom control if camera supports zoom
+                if (maxZoom > minZoom) {
+                    zoomControlLayout.setVisibility(View.VISIBLE);
+
+                    // Enable/disable 2x button based on max zoom
+                    btnZoom2x.setEnabled(maxZoom >= 2.0f);
+                } else {
+                    zoomControlLayout.setVisibility(View.GONE);
+                }
+            }
         }
     }
 
@@ -317,6 +456,7 @@ public class EmbeddedCameraFragment extends Fragment {
     private void showPermissionLayout() {
         permissionLayout.setVisibility(View.VISIBLE);
         previewView.setVisibility(View.GONE);
+        zoomControlLayout.setVisibility(View.GONE);
     }
 
     @Override

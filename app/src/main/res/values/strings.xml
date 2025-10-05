@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: strings.xml
-  ~ Last Modified: 5/10/2025 3:3
+  ~ Last Modified: 5/10/2025 3:34
   -->
 
 <resources>
@@ -47,4 +47,8 @@
     <string name="delete_icon">Delete icon</string>
     <string name="logout_icon">Logout icon</string>
     <string name="dark_mode_icon">Dark mode icon</string>
+
+    <!-- Photo Zoom -->
+    <string name="back_button">Back</string>
+    <string name="zoomed_photo">Zoomed photo</string>
 </resources>

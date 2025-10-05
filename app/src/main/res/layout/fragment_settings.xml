@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: fragment_settings.xml
-  ~ Last Modified: 5/10/2025 3:3
+  ~ Last Modified: 5/10/2025 3:34
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -111,77 +111,6 @@
                         android:id="@+id/switch_dark_mode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Storage Settings -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardBackgroundColor="@color/card_background"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:text="Storage"
-                    android:textColor="@color/primary_text"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/layout_clear_cache"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:padding="8dp">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginEnd="16dp"
-                        android:contentDescription="@string/delete_icon"
-                        android:src="@drawable/ic_delete"
-                        app:tint="@color/error_color" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Clear Cache"
-                            android:textColor="@color/primary_text"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Free up storage space"
-                            android:textColor="@color/secondary_text"
-                            android:textSize="14sp" />
-
-                    </LinearLayout>
 
                 </LinearLayout>
 

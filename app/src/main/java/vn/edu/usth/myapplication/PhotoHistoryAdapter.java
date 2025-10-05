@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: PhotoHistoryAdapter.java
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 5/10/2025 3:34
  */
 
 package vn.edu.usth.myapplication;
@@ -28,16 +28,14 @@ public class PhotoHistoryAdapter extends RecyclerView.Adapter<PhotoHistoryAdapte
 
     private final List<PhotoEntry> items;
     private final SimpleDateFormat fmt = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
+    private OnPhotoClickListener onPhotoClickListener;
+
+    public void setOnPhotoClickListener(OnPhotoClickListener listener) {
+        this.onPhotoClickListener = listener;
+    }
 
     public PhotoHistoryAdapter(List<PhotoEntry> items) {
         this.items = items;
-    }
-
-    @NonNull
-    @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_photo, parent, false);
-        return new VH(v);
     }
 
     @Override
@@ -53,6 +51,24 @@ public class PhotoHistoryAdapter extends RecyclerView.Adapter<PhotoHistoryAdapte
             h.image.setImageURI(e.getUri());
         }
         h.date.setText(fmt.format(e.getDateTaken()));
+
+        // Set click listener
+        h.itemView.setOnClickListener(v -> {
+            if (onPhotoClickListener != null) {
+                onPhotoClickListener.onPhotoClick(e);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_photo, parent, false);
+        return new VH(v);
+    }
+
+    public interface OnPhotoClickListener {
+        void onPhotoClick(PhotoEntry photoEntry);
     }
 
     @Override

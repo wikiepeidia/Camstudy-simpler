@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: PhotoDatabase.java
- * Last Modified: 1/10/2025 9:20
+ * Last Modified: 5/10/2025 3:34
  */
 
 package vn.edu.usth.myapplication;
@@ -19,6 +19,7 @@ import java.util.Set;
 public class PhotoDatabase {
     private static final String PREF_NAME = "PhotoMagicDB";
     private static final String KEY_ENTRIES = "photo_entries"; // each entry: uri|timestamp
+    private static final int MAX_HISTORY = 20; // Maximum number of photos to keep
 
     private final SharedPreferences sharedPreferences;
 
@@ -28,8 +29,37 @@ public class PhotoDatabase {
 
     public void savePhoto(String uriString, long timestamp) {
         Set<String> existing = sharedPreferences.getStringSet(KEY_ENTRIES, new HashSet<>());
-        Set<String> updated = new HashSet<>(existing);
-        updated.add(uriString + "|" + timestamp);
+        List<PhotoEntry> allPhotos = new ArrayList<>();
+
+        // Convert existing entries to PhotoEntry objects
+        for (String s : existing) {
+            String[] parts = s.split("\\|", 2);
+            if (parts.length == 2) {
+                try {
+                    long ts = Long.parseLong(parts[1]);
+                    allPhotos.add(new PhotoEntry(parts[0], ts));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+
+        // Add new photo
+        allPhotos.add(new PhotoEntry(uriString, timestamp));
+
+        // Sort by timestamp (newest first)
+        allPhotos.sort((a, b) -> Long.compare(b.getDateTaken(), a.getDateTaken()));
+
+        // Keep only the latest MAX_HISTORY photos
+        if (allPhotos.size() > MAX_HISTORY) {
+            allPhotos = allPhotos.subList(0, MAX_HISTORY);
+        }
+
+        // Convert back to strings and save
+        Set<String> updated = new HashSet<>();
+        for (PhotoEntry entry : allPhotos) {
+            updated.add(entry.getUri() + "|" + entry.getDateTaken());
+        }
+
         sharedPreferences.edit().putStringSet(KEY_ENTRIES, updated).apply();
     }
 

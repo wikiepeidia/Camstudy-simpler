@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: fragment_home.xml
-  ~ Last Modified: 1/10/2025 4:38
+  ~ Last Modified: 5/10/2025 3:34
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -39,7 +39,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="PhotoMagic"
+                    android:text="Cam Study"
                     android:textColor="@color/primary_text"
                     android:textSize="28sp"
                     android:textStyle="bold" />
