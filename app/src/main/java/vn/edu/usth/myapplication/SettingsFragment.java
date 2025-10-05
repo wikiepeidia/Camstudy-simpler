@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: SettingsFragment.java
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 5/10/2025 2:40
  */
 
 package vn.edu.usth.myapplication;
@@ -18,7 +18,11 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.NavOptions;
+import androidx.navigation.Navigation;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
@@ -26,17 +30,11 @@ public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
     private SwitchMaterial switchFlash;
-    private SwitchMaterial switchGrid;
 
-    // Public methods to get preferences for use in other fragments
+    // Public method to get flash preference for use in other fragments
     public static boolean isFlashEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("PhotoMagicPrefs", Context.MODE_PRIVATE);
         return prefs.getBoolean("flash_mode", false);
-    }
-
-    public static boolean isGridEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences("PhotoMagicPrefs", Context.MODE_PRIVATE);
-        return prefs.getBoolean("grid_lines", false);
     }
 
     @Override
@@ -47,8 +45,8 @@ public class SettingsFragment extends Fragment {
         sharedPreferences = requireContext().getSharedPreferences("PhotoMagicPrefs", Context.MODE_PRIVATE);
 
         switchFlash = view.findViewById(R.id.switch_flash);
-        switchGrid = view.findViewById(R.id.switch_grid);
         LinearLayout clearCacheLayout = view.findViewById(R.id.layout_clear_cache);
+        LinearLayout logoutLayout = view.findViewById(R.id.layout_logout);
 
         // Load saved preferences
         loadPreferences();
@@ -56,22 +54,19 @@ public class SettingsFragment extends Fragment {
         // Set up listeners
         switchFlash.setOnCheckedChangeListener((buttonView, isChecked) -> {
             savePreference("flash_mode", isChecked);
+            String message = isChecked ? "Flash enabled" : "Flash disabled";
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
         });
 
-        switchGrid.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            savePreference("grid_lines", isChecked);
-        });
+        clearCacheLayout.setOnClickListener(v -> clearCache());
 
-        clearCacheLayout.setOnClickListener(v -> {
-            clearCache();
-        });
+        logoutLayout.setOnClickListener(v -> showLogoutDialog());
 
         return view;
     }
 
     private void loadPreferences() {
         switchFlash.setChecked(sharedPreferences.getBoolean("flash_mode", false));
-        switchGrid.setChecked(sharedPreferences.getBoolean("grid_lines", false));
     }
 
     private void savePreference(String key, boolean value) {
@@ -83,10 +78,45 @@ public class SettingsFragment extends Fragment {
     private void clearCache() {
         try {
             // Clear app cache
-            requireContext().getCacheDir().delete();
-            Toast.makeText(requireContext(), "Cache cleared successfully", Toast.LENGTH_SHORT).show();
+            boolean deleted = requireContext().getCacheDir().delete();
+            if (deleted) {
+                Toast.makeText(requireContext(), "Cache cleared successfully", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(requireContext(), "Failed to clear cache", Toast.LENGTH_SHORT).show();
+            }
         } catch (Exception e) {
             Toast.makeText(requireContext(), "Failed to clear cache", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void showLogoutDialog() {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Logout", (dialog, which) -> performLogout())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void performLogout() {
+        // Clear user login session
+        SharedPreferences userPrefs = requireActivity().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = userPrefs.edit();
+        editor.putBoolean("LOGGED_IN", false);
+        editor.apply();
+
+        // Clear app preferences
+        SharedPreferences.Editor appEditor = sharedPreferences.edit();
+        appEditor.clear();
+        appEditor.apply();
+
+        Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+
+        // Navigate to welcome screen
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        NavOptions navOptions = new NavOptions.Builder()
+                .setPopUpTo(R.id.nav_graph, true)
+                .build();
+        navController.navigate(R.id.nav_welcome, null, navOptions);
     }
 }

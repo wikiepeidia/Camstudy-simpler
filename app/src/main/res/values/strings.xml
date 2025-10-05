@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: strings.xml
-  ~ Last Modified: 1/10/2025 9:20
+  ~ Last Modified: 5/10/2025 2:40
   -->
 
 <resources>
@@ -41,4 +41,9 @@
     <string name="tex2"> CamStudy</string>
     <string name="tex3">Explore the world through your camera</string>
     <string name="start">Start</string>
+
+    <!-- Settings -->
+    <string name="flash_icon">Flash icon</string>
+    <string name="delete_icon">Delete icon</string>
+    <string name="logout_icon">Logout icon</string>
 </resources>
