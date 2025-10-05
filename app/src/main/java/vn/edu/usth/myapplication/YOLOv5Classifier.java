@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: YOLOv5Classifier.java
- * Last Modified: 5/10/2025 5:27
+ * Last Modified: 5/10/2025 11:0
  */
 
 package vn.edu.usth.myapplication;
@@ -91,11 +91,13 @@ public class YOLOv5Classifier {
 
     private List<Result> postprocess(float[][][] output, int origW, int origH) {
         List<Result> results = new ArrayList<>();
+        Result bestResult = null;
+        float bestConfidence = 0;
 
         for (int i = 0; i < 25200; i++) {
             float[] row = output[0][i];
             float conf = row[4];
-            if (conf < 0.3f) continue; // Lower threshold
+            if (conf < 0.4f) continue;
 
             int classId = -1;
             float maxProb = 0;
@@ -105,9 +107,6 @@ public class YOLOv5Classifier {
                     classId = c - 5;
                 }
             }
-
-            float finalConf = conf * maxProb; // Combine confidence
-            if (finalConf < 0.3f) continue; // Lower threshold
 
             if (classId >= 0 && classId < labels.size()) {
                 float x = row[0];
@@ -120,75 +119,21 @@ public class YOLOv5Classifier {
                 float right = (x + w / 2) / inputSize * origW;
                 float bottom = (y + h / 2) / inputSize * origH;
 
-                results.add(new Result(labels.get(classId), finalConf, left, top, right, bottom));
-            }
-        }
-
-        // Sort by confidence and apply simpler NMS
-        results.sort((a, b) -> Float.compare(b.conf, a.conf));
-
-        List<Result> filtered = new ArrayList<>();
-        boolean[] suppressed = new boolean[results.size()];
-
-        for (int i = 0; i < results.size() && filtered.size() < 10; i++) {
-            if (suppressed[i]) continue;
-            filtered.add(results.get(i));
-
-            // Suppress similar detections
-            for (int j = i + 1; j < results.size(); j++) {
-                if (suppressed[j]) continue;
-                if (results.get(i).label.equals(results.get(j).label) &&
-                        calculateIoU(results.get(i), results.get(j)) > 0.3f) {
-                    suppressed[j] = true;
+                if (conf > bestConfidence) {
+                    bestConfidence = conf;
+                    bestResult = new Result(labels.get(classId), conf, left, top, right, bottom);
                 }
             }
         }
 
-        Log.d(TAG, "Detected " + filtered.size() + " objects after filtering");
-        return filtered;
-    }
-
-    private List<Result> applyNMS(List<Result> results, float iouThreshold) {
-        if (results.isEmpty()) return results;
-
-        // Sort by confidence
-        results.sort((a, b) -> Float.compare(b.conf, a.conf));
-
-        List<Result> selected = new ArrayList<>();
-        boolean[] suppressed = new boolean[results.size()];
-
-        for (int i = 0; i < results.size(); i++) {
-            if (suppressed[i]) continue;
-            selected.add(results.get(i));
-
-            for (int j = i + 1; j < results.size(); j++) {
-                if (suppressed[j]) continue;
-                if (calculateIoU(results.get(i), results.get(j)) > iouThreshold) {
-                    suppressed[j] = true;
-                }
-            }
+        if (bestResult != null) {
+            results.add(bestResult);
+            Log.d(TAG, "Detected: " + bestResult.label + " with confidence " + (bestResult.conf * 100) + "%");
+        } else {
+            Log.d(TAG, "No objects detected above threshold");
         }
 
-        return selected;
-    }
-
-    private float calculateIoU(Result a, Result b) {
-        float areaA = (a.right - a.left) * (a.bottom - a.top);
-        float areaB = (b.right - b.left) * (b.bottom - b.top);
-
-        float intersectLeft = Math.max(a.left, b.left);
-        float intersectTop = Math.max(a.top, b.top);
-        float intersectRight = Math.min(a.right, b.right);
-        float intersectBottom = Math.min(a.bottom, b.bottom);
-
-        if (intersectRight < intersectLeft || intersectBottom < intersectTop) {
-            return 0;
-        }
-
-        float intersectArea = (intersectRight - intersectLeft) * (intersectBottom - intersectTop);
-        float unionArea = areaA + areaB - intersectArea;
-
-        return intersectArea / unionArea;
+        return results;
     }
 
     public Bitmap drawDetections(Bitmap bitmap, List<Result> results) {

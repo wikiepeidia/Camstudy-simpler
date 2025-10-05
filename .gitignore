@@ -10,9 +10,25 @@
 # Java class files
 *.class
 
-# copilot
+# random AI stuffs
 **/copilot.*
 **/discord.*
+**/chatgpt.*
+**/gpt-4all.*
+**/llama.*
+**/mistral.*
+**/gemini.*
+**/bard.*
+**/claude.*
+**/perplexity.*
+**/youchat.*
+**/huggingface.*
+**/bing.*
+**/sydney.*
+**/erich.*
+**/anthropic.*
+**/deepseek.*
+
 
 # Generated files
 bin/

@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: PhotoPreviewFragment.java
- * Last Modified: 5/10/2025 10:22
+ * Last Modified: 5/10/2025 11:0
  */
 
 package vn.edu.usth.myapplication;
@@ -175,8 +175,21 @@ public class PhotoPreviewFragment extends Fragment {
         new Thread(() -> {
             try {
                 Log.d(TAG, "Starting object detection...");
-                // Perform object detection
-                List<YOLOv5Classifier.Result> results = yoloClassifier.detect(bitmap);
+                Log.d(TAG, "Bitmap size: " + bitmap.getWidth() + "x" + bitmap.getHeight());
+                Log.d(TAG, "Bitmap config: " + bitmap.getConfig());
+
+                // Ensure bitmap is in correct format - MUST create mutable copy
+                Bitmap processedBitmap = bitmap;
+                if (bitmap.getConfig() != Bitmap.Config.ARGB_8888) {
+                    Log.d(TAG, "Converting bitmap to ARGB_8888");
+                    processedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                } else {
+                    // Create mutable copy even if format is correct
+                    processedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                }
+
+                // Perform object detection on the processed bitmap
+                List<YOLOv5Classifier.Result> results = yoloClassifier.detect(processedBitmap);
                 Log.d(TAG, "Detection complete. Found " + results.size() + " objects");
 
                 // Extract unique labels
@@ -186,20 +199,25 @@ public class PhotoPreviewFragment extends Fragment {
                     Log.d(TAG, "Detected: " + result.label + " with confidence " + (result.conf * 100) + "%");
                 }
 
+                // Final bitmap for UI update
+                final Bitmap finalBitmap = processedBitmap;
+
                 // Update UI on main thread
                 requireActivity().runOnUiThread(() -> {
                     if (uniqueLabels.isEmpty()) {
                         txtDetectedObjects.setText(R.string.no_objects_detected);
+                        Log.w(TAG, "No objects detected - showing dialog");
                         // Show dialog asking if user wants to translate their own word
                         showNoDetectionDialog();
                     } else {
                         String detectedText = "Detected: " + String.join(", ", uniqueLabels);
                         txtDetectedObjects.setText(detectedText);
+                        Log.d(TAG, "Detected objects: " + detectedText);
                     }
 
                     // Draw bounding boxes on image
                     if (!results.isEmpty()) {
-                        Bitmap annotatedBitmap = yoloClassifier.drawDetections(bitmap, results);
+                        Bitmap annotatedBitmap = yoloClassifier.drawDetections(finalBitmap, results);
                         imgPreview.setImageBitmap(annotatedBitmap);
                         currentBitmap = annotatedBitmap;
                     }
@@ -211,6 +229,7 @@ public class PhotoPreviewFragment extends Fragment {
 
             } catch (Exception e) {
                 Log.e(TAG, "Error during object detection", e);
+                e.printStackTrace();
                 requireActivity().runOnUiThread(() -> {
                     txtDetectedObjects.setText(R.string.detection_failed);
                     // Also show dialog for failed detection
@@ -243,32 +262,44 @@ public class PhotoPreviewFragment extends Fragment {
         input.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
         input.setPadding(50, 30, 50, 30);
 
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Enter Text to Translate")
                 .setMessage("What word would you like to translate?")
                 .setView(input)
-                .setPositiveButton("Translate", (dialog, which) -> {
-                    String userInput = input.getText().toString().trim();
-                    if (!userInput.isEmpty()) {
-                        // DO NOT add user input to detectedObjectsList
-                        // Keep detectedObjectsList empty so TranslationFragment shows "NONE"
-                        // Instead, pass the user input directly to TranslationFragment
-                        Bundle bundle = new Bundle();
-                        // Pass empty array to keep "Object detected: NONE"
-                        bundle.putStringArray("detected_objects", new String[0]);
-                        bundle.putString("photo_uri", photoUri);
-                        // Pass user's custom word separately
-                        bundle.putString("user_input_text", userInput);
-
-                        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-                        navController.navigate(R.id.action_photoPreviewFragment_to_translationFragment, bundle);
-                    } else {
-                        Toast.makeText(requireContext(), "Please enter a word", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .setPositiveButton("Translate", null) // Set to null, will override below
+                .setNegativeButton("Cancel", (d, which) -> d.dismiss())
                 .setCancelable(true)
-                .show();
+                .create();
+
+        // Override the positive button to prevent dialog from closing on empty input
+        dialog.setOnShowListener(dialogInterface -> {
+            android.widget.Button button = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE);
+            button.setOnClickListener(view -> {
+                String userInput = input.getText().toString().trim();
+
+                // Validate that input is not empty or just whitespace
+                if (userInput.isEmpty()) {
+                    input.setError("Please enter a word");
+                    Toast.makeText(requireContext(), "Text cannot be empty!", Toast.LENGTH_SHORT).show();
+                    // Don't dismiss dialog - let user try again
+                    return;
+                }
+
+                // Valid input - proceed to translation
+                Bundle bundle = new Bundle();
+                // Pass empty array to keep "Object detected: NONE"
+                bundle.putStringArray("detected_objects", new String[0]);
+                bundle.putString("photo_uri", photoUri);
+                // Pass user's custom word separately
+                bundle.putString("user_input_text", userInput);
+
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.action_photoPreviewFragment_to_translationFragment, bundle);
+                dialog.dismiss();
+            });
+        });
+
+        dialog.show();
     }
 
     private void savePhoto() {
