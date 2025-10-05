@@ -3,12 +3,13 @@
  * All rights reserved.
  * Project: My Application
  * File: SettingsFragment.java
- * Last Modified: 5/10/2025 10:22
+ * Last Modified: 5/10/2025 10:43
  */
 
 package vn.edu.usth.myapplication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -32,6 +33,7 @@ public class SettingsFragment extends Fragment {
     private SwitchMaterial switchFlash;
     private SwitchMaterial switchDarkMode;
     private UserDatabase userDatabase;
+    private boolean isDarkModeChanging = false;
 
     // Public method to get flash preference for use in other fragments
     public static boolean isFlashEnabled(Context context) {
@@ -68,10 +70,18 @@ public class SettingsFragment extends Fragment {
         });
 
         switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            savePreference("dark_mode", isChecked);
-            String message = isChecked ? "Dark mode enabled" : "Dark mode disabled";
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-            applyTheme(isChecked);
+            // Prevent recursive calls
+            if (isDarkModeChanging) {
+                return;
+            }
+
+            // Get current saved dark mode preference
+            boolean currentDarkMode = sharedPreferences.getBoolean("dark_mode", false);
+
+            // If the value actually changed, show restart dialog
+            if (currentDarkMode != isChecked) {
+                showRestartDialog(isChecked);
+            }
         });
 
         logoutLayout.setOnClickListener(v -> showLogoutDialog());
@@ -90,19 +100,70 @@ public class SettingsFragment extends Fragment {
         editor.apply();
     }
 
-    private void applyTheme(boolean isDarkMode) {
-        // Save preference first
-        savePreference("dark_mode", isDarkMode);
+    private void showRestartDialog(boolean newDarkModeValue) {
+        String themeMode = newDarkModeValue ? "Dark Mode" : "Light Mode";
 
-        // Show message that app needs restart for theme change
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                .setTitle("Theme Change")
-                .setMessage("Please restart the app to apply the new theme")
-                .setPositiveButton("OK", null)
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Restart Required")
+                .setMessage("The app needs to restart to apply " + themeMode + ". Do you want to restart now?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    // Save the new preference FIRST
+                    savePreference("dark_mode", newDarkModeValue);
+
+                    // Force commit to ensure it's saved immediately
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean("dark_mode", newDarkModeValue);
+                    editor.commit(); // Use commit() instead of apply() for immediate write
+
+                    // Log for debugging
+                    android.util.Log.d("SettingsFragment", "Saved dark mode preference: " + newDarkModeValue);
+
+                    // Small delay to ensure preference is saved
+                    new android.os.Handler().postDelayed(() -> {
+                        restartApp();
+                    }, 100);
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                    // Revert the switch to its previous state
+                    isDarkModeChanging = true;
+                    switchDarkMode.setChecked(!newDarkModeValue);
+                    isDarkModeChanging = false;
+
+                    Toast.makeText(requireContext(), "Theme change cancelled", Toast.LENGTH_SHORT).show();
+                })
+                .setCancelable(false) // Prevent dismissing by clicking outside
                 .show();
+    }
 
-        // Don't apply theme immediately to avoid fragment recreation issues
-        // Theme will be applied on next app launch via MainActivity
+    private void restartApp() {
+        try {
+            android.util.Log.d("SettingsFragment", "Restarting app...");
+
+            // Get the app's launch intent
+            Intent intent = requireActivity().getPackageManager()
+                    .getLaunchIntentForPackage(requireActivity().getPackageName());
+
+            if (intent != null) {
+                // Clear all activities and start fresh
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                        Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                // Finish current activity first
+                requireActivity().finish();
+
+                // Start the activity
+                startActivity(intent);
+
+                // Kill the process to ensure complete restart
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        } catch (Exception e) {
+            android.util.Log.e("SettingsFragment", "Error restarting app", e);
+            Toast.makeText(requireContext(),
+                    "Please restart the app manually to apply theme changes",
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private void showLogoutDialog() {

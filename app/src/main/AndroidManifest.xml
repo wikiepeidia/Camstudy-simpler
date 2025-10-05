@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: AndroidManifest.xml
-  ~ Last Modified: 5/10/2025 10:22
+  ~ Last Modified: 5/10/2025 10:43
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,6 +32,7 @@
         android:required="false" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

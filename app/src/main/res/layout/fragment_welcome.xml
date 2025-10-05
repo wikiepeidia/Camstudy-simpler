@@ -3,7 +3,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: fragment_welcome.xml
-  ~ Last Modified: 1/10/2025 9:20
+  ~ Last Modified: 5/10/2025 10:43
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -58,6 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/camStudyText"
         android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="0dp"
         android:gravity="center"

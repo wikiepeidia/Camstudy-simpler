@@ -3,17 +3,15 @@
  * All rights reserved.
  * Project: My Application
  * File: MainActivity.java
- * Last Modified: 5/10/2025 10:22
+ * Last Modified: 5/10/2025 10:43
  */
 
 package vn.edu.usth.myapplication;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
@@ -29,9 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Apply theme before super.onCreate()
-        applyThemeFromPreferences();
-
+        // Theme is now applied in MyApplication.onCreate() - no need to apply here
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -96,17 +92,6 @@ public class MainActivity extends AppCompatActivity {
         // Hide action bar for cleaner UI like the HTML app
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
-        }
-    }
-
-    private void applyThemeFromPreferences() {
-        SharedPreferences prefs = getSharedPreferences("PhotoMagicPrefs", MODE_PRIVATE);
-        boolean isDarkMode = prefs.getBoolean("dark_mode", false);
-
-        if (isDarkMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         }
     }
 

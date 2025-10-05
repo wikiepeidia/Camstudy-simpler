@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: TranslationFragment.java
- * Last Modified: 5/10/2025 10:22
+ * Last Modified: 5/10/2025 10:43
  */
 
 package vn.edu.usth.myapplication;
@@ -98,6 +98,9 @@ public class TranslationFragment extends Fragment {
     private TextToSpeech textToSpeech;
     private int speakClickCount = 0;
     private String lastTranslatedText = "";
+    private boolean isTTSAvailable = false;
+    private boolean isTTSInitialized = false;
+
     // Store initial detected object to keep it hardcoded
     private String initialDetectedObject = null;
 
@@ -117,13 +120,47 @@ public class TranslationFragment extends Fragment {
 
         translatorService = new AzureTranslatorService();
 
-        // Initialize Text-to-Speech
-        textToSpeech = new TextToSpeech(getContext(), status -> {
-            if (status == TextToSpeech.SUCCESS) {
-                // Set default language
-                setTTSLanguage(currentTargetLanguageCode);
-            }
-        });
+        // Initialize Text-to-Speech with error handling
+        initializeTTS();
+    }
+
+    private void initializeTTS() {
+        try {
+            textToSpeech = new TextToSpeech(getContext(), status -> {
+                if (status == TextToSpeech.SUCCESS) {
+                    isTTSInitialized = true;
+                    // Try to set default language
+                    int result = setTTSLanguage(currentTargetLanguageCode);
+                    if (result == TextToSpeech.LANG_AVAILABLE ||
+                            result == TextToSpeech.LANG_COUNTRY_AVAILABLE ||
+                            result == TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE) {
+                        isTTSAvailable = true;
+                        android.util.Log.d("TranslationFragment", "TTS initialized successfully");
+                    } else {
+                        // Try English as fallback
+                        result = textToSpeech.setLanguage(Locale.US);
+                        if (result == TextToSpeech.LANG_AVAILABLE ||
+                                result == TextToSpeech.LANG_COUNTRY_AVAILABLE ||
+                                result == TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE) {
+                            isTTSAvailable = true;
+                            android.util.Log.d("TranslationFragment", "TTS initialized with English fallback");
+                        } else {
+                            isTTSAvailable = false;
+                            android.util.Log.w("TranslationFragment", "TTS language not supported on this device");
+                        }
+                    }
+                } else {
+                    isTTSInitialized = false;
+                    isTTSAvailable = false;
+                    android.util.Log.e("TranslationFragment", "TTS initialization failed");
+                }
+            });
+        } catch (Exception e) {
+            android.util.Log.e("TranslationFragment", "Error initializing TTS", e);
+            isTTSInitialized = false;
+            isTTSAvailable = false;
+            textToSpeech = null;
+        }
     }
 
     @Nullable
@@ -233,6 +270,10 @@ public class TranslationFragment extends Fragment {
         // Speak button - with speed control
         if (btnSpeak != null) {
             btnSpeak.setOnClickListener(v -> {
+                if (!isTTSAvailable) {
+                    showTTSUnavailableDialog();
+                    return;
+                }
                 speakClickCount++;
                 float speed = (speakClickCount % 2 == 1) ? 1.0f : 0.5f;
                 speakText(speed);
@@ -293,8 +334,44 @@ public class TranslationFragment extends Fragment {
         });
     }
 
-    private void setTTSLanguage(String languageCode) {
-        if (textToSpeech == null) return;
+    private void showTTSUnavailableDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Text-to-Speech Unavailable")
+                .setMessage("Text-to-Speech is not available on this device. This could be due to:\n\n" +
+                        "• Missing TTS engine\n" +
+                        "• Unsupported Android version\n" +
+                        "• Custom ROM limitations\n\n" +
+                        "You can install Google Text-to-Speech from the Play Store.")
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .setNeutralButton("Install TTS", (dialog, which) -> {
+                    try {
+                        // Try to open TTS settings
+                        android.content.Intent intent = new android.content.Intent();
+                        intent.setAction("com.android.settings.TTS_SETTINGS");
+                        intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        try {
+                            // Fallback: Open Play Store for Google TTS
+                            android.content.Intent intent = new android.content.Intent(
+                                    android.content.Intent.ACTION_VIEW,
+                                    android.net.Uri.parse("market://details?id=com.google.android.tts")
+                            );
+                            startActivity(intent);
+                        } catch (Exception ex) {
+                            Toast.makeText(getContext(),
+                                    "Cannot open TTS settings or Play Store",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .show();
+    }
+
+    private int setTTSLanguage(String languageCode) {
+        if (textToSpeech == null || !isTTSInitialized) {
+            return TextToSpeech.ERROR;
+        }
 
         Locale locale;
         switch (languageCode) {
@@ -391,11 +468,21 @@ public class TranslationFragment extends Fragment {
                 break;
         }
 
-        int result = textToSpeech.setLanguage(locale);
-        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-            android.util.Log.w("TranslationFragment", "TTS language not supported: " + languageCode);
-            // Fallback to English
-            textToSpeech.setLanguage(Locale.US);
+        try {
+            int result = textToSpeech.setLanguage(locale);
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                android.util.Log.w("TranslationFragment", "TTS language not supported: " + languageCode + ", trying English fallback");
+                // Try English fallback
+                result = textToSpeech.setLanguage(Locale.US);
+                if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                    // Try default locale as last resort
+                    result = textToSpeech.setLanguage(Locale.getDefault());
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            android.util.Log.e("TranslationFragment", "Error setting TTS language", e);
+            return TextToSpeech.ERROR;
         }
     }
 
@@ -520,9 +607,20 @@ public class TranslationFragment extends Fragment {
                                         lastTranslatedText = translatedText;
                                     }
 
-                                    // Show TTS buttons on successful translation
-                                    if (btnSpeak != null) btnSpeak.setVisibility(View.VISIBLE);
-                                    if (btnStop != null) btnStop.setVisibility(View.VISIBLE);
+                                    // Show TTS buttons only if TTS is available
+                                    if (isTTSAvailable) {
+                                        if (btnSpeak != null) btnSpeak.setVisibility(View.VISIBLE);
+                                        if (btnStop != null) btnStop.setVisibility(View.VISIBLE);
+                                    } else {
+                                        // Show buttons but they will show error dialog when clicked
+                                        if (btnSpeak != null) {
+                                            btnSpeak.setVisibility(View.VISIBLE);
+                                            btnSpeak.setAlpha(0.5f); // Make it look disabled
+                                        }
+                                        if (btnStop != null) {
+                                            btnStop.setVisibility(View.GONE); // Hide stop if TTS unavailable
+                                        }
+                                    }
 
                                     if (progressBar != null) {
                                         progressBar.setVisibility(View.GONE);
@@ -573,24 +671,57 @@ public class TranslationFragment extends Fragment {
     }
 
     private void speakText(float speed) {
-        if (textToSpeech != null && etTranslatedText != null) {
-            String text = etTranslatedText.getText() != null ?
-                    etTranslatedText.getText().toString() : "";
+        if (textToSpeech == null || !isTTSInitialized || !isTTSAvailable) {
+            showTTSUnavailableDialog();
+            return;
+        }
 
-            if (!text.isEmpty()) {
-                textToSpeech.setSpeechRate(speed);
-                textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+        if (etTranslatedText == null) {
+            Toast.makeText(getContext(), "No text to speak", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String text = etTranslatedText.getText() != null ?
+                etTranslatedText.getText().toString() : "";
+
+        if (text.isEmpty()) {
+            Toast.makeText(getContext(), "No text to speak", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // Stop any ongoing speech first
+            textToSpeech.stop();
+
+            // Set speech rate
+            textToSpeech.setSpeechRate(speed);
+
+            // Speak with error handling
+            int result = textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "TranslationTTS");
+
+            if (result == TextToSpeech.SUCCESS) {
                 Toast.makeText(getContext(), "Speaking at " + speed + "x speed", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getContext(), "No text to speak", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Failed to speak. TTS error.", Toast.LENGTH_SHORT).show();
+                android.util.Log.e("TranslationFragment", "TTS speak failed with result: " + result);
             }
+        } catch (Exception e) {
+            android.util.Log.e("TranslationFragment", "Error during TTS speak", e);
+            Toast.makeText(getContext(), "TTS error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            isTTSAvailable = false;
         }
     }
 
     private void stopSpeaking() {
-        if (textToSpeech != null && textToSpeech.isSpeaking()) {
-            textToSpeech.stop();
-            Toast.makeText(getContext(), "Stopped speaking", Toast.LENGTH_SHORT).show();
+        if (textToSpeech != null && isTTSInitialized) {
+            try {
+                if (textToSpeech.isSpeaking()) {
+                    textToSpeech.stop();
+                    Toast.makeText(getContext(), "Stopped speaking", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                android.util.Log.e("TranslationFragment", "Error stopping TTS", e);
+            }
         }
     }
 
@@ -637,8 +768,12 @@ public class TranslationFragment extends Fragment {
     public void onDestroy() {
         // Shutdown TTS when fragment is destroyed
         if (textToSpeech != null) {
-            textToSpeech.stop();
-            textToSpeech.shutdown();
+            try {
+                textToSpeech.stop();
+                textToSpeech.shutdown();
+            } catch (Exception e) {
+                android.util.Log.e("TranslationFragment", "Error shutting down TTS", e);
+            }
         }
         super.onDestroy();
     }
