@@ -3,12 +3,11 @@
  * All rights reserved.
  * Project: My Application
  * File: RegisterFragment.java
- * Last Modified: 5/10/2025 2:54
+ * Last Modified: 5/10/2025 3:3
  */
 
 package vn.edu.usth.myapplication;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -28,12 +27,14 @@ import androidx.navigation.Navigation;
 public class RegisterFragment extends Fragment {
 
     private EditText edtEmail, edtPassword, edtConfirmPassword;
+    private UserDatabase userDatabase;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        userDatabase = new UserDatabase(requireContext());
         return inflater.inflate(R.layout.fragment_register, container, false);
     }
 
@@ -89,27 +90,23 @@ public class RegisterFragment extends Fragment {
                 return;
             }
 
-            // Check if email already exists
-            android.content.SharedPreferences prefs = requireActivity().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE);
-            String existingEmail = prefs.getString("EMAIL", "");
-
-            if (!TextUtils.isEmpty(existingEmail) && existingEmail.equals(email)) {
+            // Check if email already exists using database
+            if (userDatabase.checkEmailExists(email)) {
                 edtEmail.setError("Email already registered");
                 edtEmail.requestFocus();
                 Toast.makeText(getContext(), "This email is already registered. Please login instead.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Save user data
-            prefs.edit()
-                    .putString("EMAIL", email)
-                    .putString("PASSWORD", password)
-                    .apply();
+            // Register user in database
+            if (userDatabase.registerUser(email, password)) {
+                Toast.makeText(getContext(), "Registration successful! Please login", Toast.LENGTH_SHORT).show();
 
-            Toast.makeText(getContext(), "Registration successful! Please login", Toast.LENGTH_SHORT).show();
-
-            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-            navController.popBackStack();
+                NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.popBackStack();
+            } else {
+                Toast.makeText(getContext(), "Registration failed. Please try again.", Toast.LENGTH_SHORT).show();
+            }
         });
 
         btnBack.setOnClickListener(v -> {

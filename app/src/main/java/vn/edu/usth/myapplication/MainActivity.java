@@ -3,15 +3,17 @@
  * All rights reserved.
  * Project: My Application
  * File: MainActivity.java
- * Last Modified: 1/10/2025 9:20
+ * Last Modified: 5/10/2025 3:3
  */
 
 package vn.edu.usth.myapplication;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
@@ -23,13 +25,19 @@ import vn.edu.usth.myapplication.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private UserDatabase userDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Apply theme before super.onCreate()
+        applyThemeFromPreferences();
+
         super.onCreate(savedInstanceState);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        userDatabase = new UserDatabase(this);
 
         // Get the NavHostFragment
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
@@ -37,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
+
+            // Check if user is logged in and navigate accordingly
+            checkLoginStatus(navController);
 
             // Setup bottom navigation
             BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -57,5 +68,25 @@ public class MainActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+    }
+
+    private void applyThemeFromPreferences() {
+        SharedPreferences prefs = getSharedPreferences("PhotoMagicPrefs", MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("dark_mode", false);
+
+        if (isDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
+
+    private void checkLoginStatus(NavController navController) {
+        // Check if user is logged in from database
+        if (userDatabase.isLoggedIn()) {
+            // User is logged in, navigate to home
+            navController.navigate(R.id.nav_home);
+        }
+        // If not logged in, the default destination (nav_welcome) will be shown
     }
 }

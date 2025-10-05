@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2025 Android project OpenVision API
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: colors.xml
+  ~ Last Modified: 5/10/2025 3:3
+  -->
+<resources>
+    <!-- Dark Mode Colors -->
+    <color name="primary_color">#BB86FC</color>
+    <color name="primary_dark">#6200EA</color>
+    <color name="accent_color">#03DAC6</color>
+
+    <color name="background_color">#121212</color>
+    <color name="surface_color">#1E1E1E</color>
+    <color name="card_background">#2C2C2C</color>
+
+    <color name="primary_text">#FFFFFF</color>
+    <color name="secondary_text">#B3B3B3</color>
+
+    <color name="error_color">#CF6679</color>
+    <color name="success_color">#4CAF50</color>
+
+    <!-- Status Bar and Navigation Bar -->
+    <color name="status_bar_color">#000000</color>
+</resources>
+

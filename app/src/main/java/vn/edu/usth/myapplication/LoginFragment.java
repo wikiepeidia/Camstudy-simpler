@@ -3,13 +3,11 @@
  * All rights reserved.
  * Project: My Application
  * File: LoginFragment.java
- * Last Modified: 1/10/2025 9:20
+ * Last Modified: 5/10/2025 3:3
  */
 
 package vn.edu.usth.myapplication;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -29,11 +27,13 @@ import androidx.navigation.Navigation;
 public class LoginFragment extends Fragment {
 
     private EditText edtEmail, edtPassword;
+    private UserDatabase userDatabase;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
+        userDatabase = new UserDatabase(requireContext());
 
         edtEmail = view.findViewById(R.id.edtEmail);
         edtPassword = view.findViewById(R.id.edtPassword);
@@ -49,13 +49,16 @@ public class LoginFragment extends Fragment {
                 return;
             }
 
-            SharedPreferences prefs = requireActivity().getSharedPreferences("USER_PREFS", Context.MODE_PRIVATE);
-            String savedEmail = prefs.getString("EMAIL", "");
-            String savedPassword = prefs.getString("PASSWORD", "");
+            // Check if email is registered
+            if (!userDatabase.isEmailRegistered(email)) {
+                Toast.makeText(getContext(), "Non-existent account. Please register!", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            if (email.equals(savedEmail) && password.equals(savedPassword)) {
-                // mark as logged in
-                prefs.edit().putBoolean("LOGGED_IN", true).apply();
+            // Validate credentials
+            if (userDatabase.validateLogin(email, password)) {
+                // Save login session in database
+                userDatabase.saveLoginSession(email, true);
 
                 Toast.makeText(getContext(), "Login success!", Toast.LENGTH_SHORT).show();
                 NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
@@ -64,7 +67,8 @@ public class LoginFragment extends Fragment {
                         .build();
                 navController.navigate(R.id.nav_home, null, navOptions);
             } else {
-                Toast.makeText(getContext(), "Non-existent account. Please register!", Toast.LENGTH_SHORT).show();
+                // Email exists but password is wrong
+                Toast.makeText(getContext(), "Wrong password. Please try again!", Toast.LENGTH_SHORT).show();
             }
         });
 

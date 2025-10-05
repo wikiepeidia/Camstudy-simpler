@@ -4,20 +4,24 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: colors.xml
-  ~ Last Modified: 1/10/2025 9:20
+  ~ Last Modified: 5/10/2025 3:3
   -->
 
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="primary_color">#FF6200EE</color>
+    <color name="primary_dark">#FF3700B3</color>
     <color name="primary_variant">#FF3700B3</color>
     <color name="secondary_color">#FF03DAC5</color>
+    <color name="accent_color">#FF03DAC5</color>
     <color name="background_color">#FFF5F5F5</color>
     <color name="surface_color">#FFFFFFFF</color>
     <color name="error_color">#FFB00020</color>
+    <color name="success_color">#4CAF50</color>
     <color name="primary_text">#FF212121</color>
     <color name="secondary_text">#FF757575</color>
     <color name="card_background">#FFFFFFFF</color>
+    <color name="status_bar_color">#FF6200EE</color>
     <color name="orange">#FFA500</color>
 </resources>

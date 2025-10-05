@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: strings.xml
-  ~ Last Modified: 5/10/2025 2:40
+  ~ Last Modified: 5/10/2025 3:3
   -->
 
 <resources>
@@ -46,4 +46,5 @@
     <string name="flash_icon">Flash icon</string>
     <string name="delete_icon">Delete icon</string>
     <string name="logout_icon">Logout icon</string>
+    <string name="dark_mode_icon">Dark mode icon</string>
 </resources>
