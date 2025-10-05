@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: SettingsFragment.java
- * Last Modified: 5/10/2025 3:34
+ * Last Modified: 5/10/2025 10:22
  */
 
 package vn.edu.usth.myapplication;
@@ -91,14 +91,18 @@ public class SettingsFragment extends Fragment {
     }
 
     private void applyTheme(boolean isDarkMode) {
-        // Apply theme immediately
-        if (isDarkMode) {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
-                    androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(
-                    androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO);
-        }
+        // Save preference first
+        savePreference("dark_mode", isDarkMode);
+
+        // Show message that app needs restart for theme change
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Theme Change")
+                .setMessage("Please restart the app to apply the new theme")
+                .setPositiveButton("OK", null)
+                .show();
+
+        // Don't apply theme immediately to avoid fragment recreation issues
+        // Theme will be applied on next app launch via MainActivity
     }
 
     private void showLogoutDialog() {

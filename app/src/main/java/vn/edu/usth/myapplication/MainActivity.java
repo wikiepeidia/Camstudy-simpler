@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: MainActivity.java
- * Last Modified: 5/10/2025 3:3
+ * Last Modified: 5/10/2025 10:22
  */
 
 package vn.edu.usth.myapplication;
@@ -56,11 +56,40 @@ public class MainActivity extends AppCompatActivity {
             // Hide bottom navigation on Welcome, Login and Register screens
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
                 int id = destination.getId();
-                if (id == R.id.nav_welcome || id == R.id.nav_login || id == R.id.nav_register) {
+                if (id == R.id.nav_welcome || id == R.id.nav_login || id == R.id.nav_register ||
+                        id == R.id.nav_photo_preview || id == R.id.nav_translation) {
                     bottomNavigationView.setVisibility(View.GONE);
                 } else {
                     bottomNavigationView.setVisibility(View.VISIBLE);
                 }
+            });
+
+            // Fix bottom navigation item selection to prevent bricking
+            bottomNavigationView.setOnItemSelectedListener(item -> {
+                int itemId = item.getItemId();
+
+                // Always navigate to the selected destination, clearing back stack to that destination
+                if (itemId == R.id.nav_home) {
+                    navController.popBackStack(R.id.nav_home, false);
+                    if (navController.getCurrentDestination() == null ||
+                            navController.getCurrentDestination().getId() != R.id.nav_home) {
+                        navController.navigate(R.id.nav_home);
+                    }
+                    return true;
+                } else if (itemId == R.id.nav_camera) {
+                    navController.popBackStack(R.id.nav_home, false);
+                    navController.navigate(R.id.nav_camera);
+                    return true;
+                } else if (itemId == R.id.nav_history) {
+                    navController.popBackStack(R.id.nav_home, false);
+                    navController.navigate(R.id.nav_history);
+                    return true;
+                } else if (itemId == R.id.nav_settings) {
+                    navController.popBackStack(R.id.nav_home, false);
+                    navController.navigate(R.id.nav_settings);
+                    return true;
+                }
+                return false;
             });
         }
 

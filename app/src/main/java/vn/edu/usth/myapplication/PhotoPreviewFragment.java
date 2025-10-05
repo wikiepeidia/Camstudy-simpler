@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: PhotoPreviewFragment.java
- * Last Modified: 5/10/2025 5:27
+ * Last Modified: 5/10/2025 10:22
  */
 
 package vn.edu.usth.myapplication;
@@ -35,6 +35,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -42,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -57,10 +59,12 @@ public class PhotoPreviewFragment extends Fragment {
     private ImageView imgPreview;
     private TextView txtDetectedObjects;
     private FloatingActionButton btnSave;
+    private ExtendedFloatingActionButton btnProceedTranslation;
     private YOLOv5Classifier yoloClassifier;
     private String photoUri;
     private boolean isTemp = false;
     private Bitmap currentBitmap;
+    private final List<String> detectedObjectsList = new ArrayList<>();
 
     private final ActivityResultLauncher<String> pickImageLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -95,6 +99,7 @@ public class PhotoPreviewFragment extends Fragment {
         txtDetectedObjects = view.findViewById(R.id.txt_detected_objects);
         FloatingActionButton btnBack = view.findViewById(R.id.btn_back_to_camera);
         btnSave = view.findViewById(R.id.btn_save_photo);
+        btnProceedTranslation = view.findViewById(R.id.btn_proceed_translation);
 
         btnBack.setOnClickListener(v -> {
             // Delete temp file if exists
@@ -115,6 +120,9 @@ public class PhotoPreviewFragment extends Fragment {
         // Show/hide save button based on whether this is a temp photo
         btnSave.setVisibility(isTemp ? View.VISIBLE : View.GONE);
         btnSave.setOnClickListener(v -> savePhoto());
+
+        // Proceed to Translation button
+        btnProceedTranslation.setOnClickListener(v -> proceedToTranslation());
 
         // Load and display the photo
         if (photoUri != null) {
@@ -182,6 +190,8 @@ public class PhotoPreviewFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     if (uniqueLabels.isEmpty()) {
                         txtDetectedObjects.setText(R.string.no_objects_detected);
+                        // Show dialog asking if user wants to translate their own word
+                        showNoDetectionDialog();
                     } else {
                         String detectedText = "Detected: " + String.join(", ", uniqueLabels);
                         txtDetectedObjects.setText(detectedText);
@@ -195,12 +205,70 @@ public class PhotoPreviewFragment extends Fragment {
                     }
                 });
 
+                // Store detected objects for translation
+                detectedObjectsList.clear();
+                detectedObjectsList.addAll(uniqueLabels);
+
             } catch (Exception e) {
                 Log.e(TAG, "Error during object detection", e);
-                requireActivity().runOnUiThread(() ->
-                        txtDetectedObjects.setText(R.string.detection_failed));
+                requireActivity().runOnUiThread(() -> {
+                    txtDetectedObjects.setText(R.string.detection_failed);
+                    // Also show dialog for failed detection
+                    showNoDetectionDialog();
+                });
             }
         }).start();
+    }
+
+    private void showNoDetectionDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("No Objects Detected")
+                .setMessage("No objects were detected in this image. Would you like to translate your own word?")
+                .setPositiveButton("Yes, Translate", (dialog, which) -> {
+                    // Show input dialog for manual text entry
+                    showManualInputDialog();
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    // User can stay on preview or go back
+                    dialog.dismiss();
+                })
+                .setCancelable(true)
+                .show();
+    }
+
+    private void showManualInputDialog() {
+        // Create EditText for user input
+        final android.widget.EditText input = new android.widget.EditText(requireContext());
+        input.setHint("Enter word to translate");
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+        input.setPadding(50, 30, 50, 30);
+
+        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle("Enter Text to Translate")
+                .setMessage("What word would you like to translate?")
+                .setView(input)
+                .setPositiveButton("Translate", (dialog, which) -> {
+                    String userInput = input.getText().toString().trim();
+                    if (!userInput.isEmpty()) {
+                        // DO NOT add user input to detectedObjectsList
+                        // Keep detectedObjectsList empty so TranslationFragment shows "NONE"
+                        // Instead, pass the user input directly to TranslationFragment
+                        Bundle bundle = new Bundle();
+                        // Pass empty array to keep "Object detected: NONE"
+                        bundle.putStringArray("detected_objects", new String[0]);
+                        bundle.putString("photo_uri", photoUri);
+                        // Pass user's custom word separately
+                        bundle.putString("user_input_text", userInput);
+
+                        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                        navController.navigate(R.id.action_photoPreviewFragment_to_translationFragment, bundle);
+                    } else {
+                        Toast.makeText(requireContext(), "Please enter a word", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .setCancelable(true)
+                .show();
     }
 
     private void savePhoto() {
@@ -294,6 +362,18 @@ public class PhotoPreviewFragment extends Fragment {
                                 Toast.LENGTH_LONG).show());
             }
         }).start();
+    }
+
+    private void proceedToTranslation() {
+        // Pass the detected objects list (can be empty) and photo URI to the TranslationFragment
+        Bundle bundle = new Bundle();
+        // Convert ArrayList to String[] array as expected by navigation arguments
+        String[] detectedObjectsArray = detectedObjectsList.toArray(new String[0]);
+        bundle.putStringArray("detected_objects", detectedObjectsArray);
+        bundle.putString("photo_uri", photoUri);
+
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+        navController.navigate(R.id.action_photoPreviewFragment_to_translationFragment, bundle);
     }
 
     @Override

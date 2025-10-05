@@ -3,8 +3,11 @@
  * All rights reserved.
  * Project: My Application
  * File: build.gradle.kts
- * Last Modified: 5/10/2025 5:27
+ * Last Modified: 5/10/2025 10:22
  */
+
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -22,11 +25,30 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Read Azure API keys from local.properties
+        val properties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            properties.load(FileInputStream(localPropertiesFile))
+        }
+
+        buildConfigField(
+            "String",
+            "AZURE_TRANSLATOR_KEY",
+            "\"${properties.getProperty("AZURE_TRANSLATOR_KEY", "")}\""
+        )
+        buildConfigField(
+            "String",
+            "AZURE_TRANSLATOR_REGION",
+            "\"${properties.getProperty("AZURE_TRANSLATOR_REGION", "")}\""
+        )
     }
 
     buildFeatures {
         viewBinding = true
         mlModelBinding = true
+        buildConfig = true
     }
 
     buildTypes {
@@ -67,6 +89,10 @@ dependencies {
     // TensorFlow Lite for object detection
     implementation("org.tensorflow:tensorflow-lite-support:0.4.0")
     implementation("org.tensorflow:tensorflow-lite-task-vision:0.4.0")
+
+    // Azure Cognitive Services Translator
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.code.gson:gson:2.10.1")
 
     // Test dependencies
     testImplementation(libs.junit)

@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: strings.xml
-  ~ Last Modified: 5/10/2025 5:27
+  ~ Last Modified: 5/10/2025 10:22
   -->
 
 <resources>
@@ -60,4 +60,18 @@
     <string name="detection_failed">Detection failed</string>
     <string name="import_image">Import Image</string>
     <string name="save_photo">Save Photo</string>
+    <string name="proceed_to_translation">Proceed to Translation</string>
+
+    <!-- Translation Fragment -->
+    <string name="no_objects_placeholder">No objects detected. Using placeholder:</string>
+    <string name="placeholder_car">Car</string>
+    <string name="detected_single_object">Detected object:</string>
+    <string name="detected_multiple_objects">Multiple objects detected. Select one:</string>
+    <string name="enter_word_to_translate">Please enter a word to translate</string>
+    <string name="select_detected_word">Select detected word</string>
+    <string name="source_text_english">Source Text: </string>
+    <string name="translation">Translation</string>
+    <string name="translate">Translate</string>
+    <string name="translation_tips">ℹ️ Translation Tips</string>
+    <string name="translation_tips_content">• Translations are shown in Vietnamese, Japanese, and French\n• For real-time translation, integrate Google Translate API\n• Single words work best for object detection</string>
 </resources>

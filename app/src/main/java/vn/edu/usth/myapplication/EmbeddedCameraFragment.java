@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: EmbeddedCameraFragment.java
- * Last Modified: 5/10/2025 5:27
+ * Last Modified: 5/10/2025 10:22
  */
 
 package vn.edu.usth.myapplication;
@@ -72,23 +72,6 @@ public class EmbeddedCameraFragment extends Fragment {
     private ScaleGestureDetector scaleGestureDetector;
     private float currentZoomRatio = 1.0f;
 
-    private final ActivityResultLauncher<String> pickImageLauncher =
-            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-                if (uri != null) {
-                    // Navigate to PhotoPreviewFragment with imported image
-                    Bundle args = new Bundle();
-                    args.putString("photo_uri", uri.toString());
-                    args.putLong("timestamp", System.currentTimeMillis());
-                    args.putBoolean("is_temp", false); // Imported images are not temp
-                    NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-                    navController.navigate(R.id.nav_photo_preview, args);
-                } else {
-                    Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show();
-                }
-            });
-    private FloatingActionButton btnGallery;
-    private FloatingActionButton btnImportImage;
-
     private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
                 boolean allGranted = true;
@@ -122,15 +105,13 @@ public class EmbeddedCameraFragment extends Fragment {
         // Camera controls
         FloatingActionButton btnCapture = view.findViewById(R.id.btn_capture);
         FloatingActionButton btnSwitchCamera = view.findViewById(R.id.btn_switch_camera);
-        btnGallery = view.findViewById(R.id.btn_gallery);
-        btnImportImage = view.findViewById(R.id.btn_import_image);
+        FloatingActionButton btnGallery = view.findViewById(R.id.btn_gallery);
         MaterialButton btnGrantPermission = view.findViewById(R.id.btn_grant_permission);
 
         // Set up button click listeners
         btnCapture.setOnClickListener(v -> takePhoto());
         btnSwitchCamera.setOnClickListener(v -> switchCamera());
         btnGallery.setOnClickListener(v -> openGallery());
-        btnImportImage.setOnClickListener(v -> importImageFromGallery());
         btnGrantPermission.setOnClickListener(v -> requestAppPermissions());
 
         // Set up zoom controls
@@ -405,11 +386,6 @@ public class EmbeddedCameraFragment extends Fragment {
     private void openGallery() {
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigate(R.id.nav_history);
-    }
-
-    private void importImageFromGallery() {
-        // Launch image picker
-        pickImageLauncher.launch("image/*");
     }
 
     private boolean allPermissionsGranted() {
