@@ -3,19 +3,16 @@
  * All rights reserved.
  * Project: My Application
  * File: EmbeddedCameraFragment.java
- * Last Modified: 5/10/2025 3:34
+ * Last Modified: 5/10/2025 5:27
  */
 
 package vn.edu.usth.myapplication;
 
 import android.Manifest;
-import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ScaleGestureDetector;
@@ -75,6 +72,23 @@ public class EmbeddedCameraFragment extends Fragment {
     private ScaleGestureDetector scaleGestureDetector;
     private float currentZoomRatio = 1.0f;
 
+    private final ActivityResultLauncher<String> pickImageLauncher =
+            registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+                if (uri != null) {
+                    // Navigate to PhotoPreviewFragment with imported image
+                    Bundle args = new Bundle();
+                    args.putString("photo_uri", uri.toString());
+                    args.putLong("timestamp", System.currentTimeMillis());
+                    args.putBoolean("is_temp", false); // Imported images are not temp
+                    NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                    navController.navigate(R.id.nav_photo_preview, args);
+                } else {
+                    Toast.makeText(requireContext(), "No image selected", Toast.LENGTH_SHORT).show();
+                }
+            });
+    private FloatingActionButton btnGallery;
+    private FloatingActionButton btnImportImage;
+
     private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
                 boolean allGranted = true;
@@ -108,13 +122,15 @@ public class EmbeddedCameraFragment extends Fragment {
         // Camera controls
         FloatingActionButton btnCapture = view.findViewById(R.id.btn_capture);
         FloatingActionButton btnSwitchCamera = view.findViewById(R.id.btn_switch_camera);
-        FloatingActionButton btnGallery = view.findViewById(R.id.btn_gallery);
+        btnGallery = view.findViewById(R.id.btn_gallery);
+        btnImportImage = view.findViewById(R.id.btn_import_image);
         MaterialButton btnGrantPermission = view.findViewById(R.id.btn_grant_permission);
 
         // Set up button click listeners
         btnCapture.setOnClickListener(v -> takePhoto());
         btnSwitchCamera.setOnClickListener(v -> switchCamera());
         btnGallery.setOnClickListener(v -> openGallery());
+        btnImportImage.setOnClickListener(v -> importImageFromGallery());
         btnGrantPermission.setOnClickListener(v -> requestAppPermissions());
 
         // Set up zoom controls
@@ -341,77 +357,27 @@ public class EmbeddedCameraFragment extends Fragment {
         String name = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
                 .format(System.currentTimeMillis());
 
-        ImageCapture.OutputFileOptions outputOptions;
-        Uri savedContentUri = null;
+        // Save to temporary cache directory instead of gallery
+        File photoFile = new File(requireContext().getCacheDir(), "temp_" + name + ".jpg");
+        ImageCapture.OutputFileOptions outputOptions =
+                new ImageCapture.OutputFileOptions.Builder(photoFile).build();
 
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                // Use scoped storage via MediaStore
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-                contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/CamStudy");
-
-                outputOptions = new ImageCapture.OutputFileOptions
-                        .Builder(requireContext().getContentResolver(),
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                        contentValues)
-                        .build();
-            } else {
-                // Legacy external storage: save to public Pictures/CamStudy
-                File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "CamStudy");
-                if (!dir.exists() && !dir.mkdirs()) {
-                    Toast.makeText(requireContext(), "Cannot access storage", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                File photoFile = new File(dir, name + ".jpg");
-                outputOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
-                savedContentUri = Uri.fromFile(photoFile);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to create output options", e);
-            Toast.makeText(requireContext(), "Failed to prepare storage: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Uri finalSavedContentUri = savedContentUri;
         imageCapture.takePicture(
                 outputOptions,
                 ContextCompat.getMainExecutor(requireContext()),
                 new ImageCapture.OnImageSavedCallback() {
                     @Override
                     public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
-                        Toast.makeText(requireContext(), "Photo saved!", Toast.LENGTH_SHORT).show();
-                        Uri uri = output.getSavedUri() != null ? output.getSavedUri() : finalSavedContentUri;
-                        if (uri != null) {
-                            long ts = System.currentTimeMillis();
-                            try {
-                                String[] proj = {MediaStore.Images.Media.DATE_TAKEN};
-                                try (android.database.Cursor c = requireContext().getContentResolver()
-                                        .query(uri, proj, null, null, null)) {
-                                    if (c != null && c.moveToFirst()) {
-                                        int idx = c.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN);
-                                        long dateTaken = c.getLong(idx);
-                                        if (dateTaken > 0) ts = dateTaken;
-                                    }
-                                }
-                            } catch (Exception e) {
-                                Log.e(TAG, "Failed to get date taken", e);
-                            }
-                            // Trigger media scan on legacy to make it appear in gallery apps
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                                try {
-                                    android.media.MediaScannerConnection.scanFile(requireContext(), new String[]{uri.getPath()}, new String[]{"image/jpeg"}, null);
-                                } catch (Exception e) {
-                                    Log.e(TAG, "Media scan failed", e);
-                                }
-                            }
-                            try {
-                                new PhotoDatabase(requireContext()).savePhoto(uri.toString(), ts);
-                            } catch (Exception e) {
-                                Log.e(TAG, "Failed to save to database", e);
-                            }
-                        }
+                        Uri uri = Uri.fromFile(photoFile);
+                        long ts = System.currentTimeMillis();
+
+                        // Navigate to PhotoPreviewFragment with temp flag
+                        Bundle args = new Bundle();
+                        args.putString("photo_uri", uri.toString());
+                        args.putLong("timestamp", ts);
+                        args.putBoolean("is_temp", true); // Mark as temporary photo
+                        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                        navController.navigate(R.id.nav_photo_preview, args);
                     }
 
                     @Override
@@ -439,6 +405,11 @@ public class EmbeddedCameraFragment extends Fragment {
     private void openGallery() {
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
         navController.navigate(R.id.nav_history);
+    }
+
+    private void importImageFromGallery() {
+        // Launch image picker
+        pickImageLauncher.launch("image/*");
     }
 
     private boolean allPermissionsGranted() {

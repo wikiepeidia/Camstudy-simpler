@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: strings.xml
-  ~ Last Modified: 5/10/2025 3:34
+  ~ Last Modified: 5/10/2025 5:27
   -->
 
 <resources>
@@ -51,4 +51,13 @@
     <!-- Photo Zoom -->
     <string name="back_button">Back</string>
     <string name="zoomed_photo">Zoomed photo</string>
+
+    <!-- Photo Preview & Object Detection -->
+    <string name="analyzing_image">Analyzing image...</string>
+    <string name="back_to_camera">Back to Camera</string>
+    <string name="no_objects_detected">No objects detected</string>
+    <string name="object_detection_unavailable">Object detection not available</string>
+    <string name="detection_failed">Detection failed</string>
+    <string name="import_image">Import Image</string>
+    <string name="save_photo">Save Photo</string>
 </resources>

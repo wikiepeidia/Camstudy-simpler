@@ -1,10 +1,9 @@
-
 /*
  * Copyright (c) 2025 Android project OpenVision API
  * All rights reserved.
  * Project: My Application
  * File: build.gradle.kts
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 5/10/2025 5:27
  */
 
 plugins {
@@ -27,6 +26,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        mlModelBinding = true
     }
 
     buildTypes {
@@ -63,6 +63,10 @@ dependencies {
 
     // Image loading library
     implementation(libs.glide)
+
+    // TensorFlow Lite for object detection
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.0")
+    implementation("org.tensorflow:tensorflow-lite-task-vision:0.4.0")
 
     // Test dependencies
     testImplementation(libs.junit)

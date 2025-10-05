@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2025 Android project OpenVision API
+  ~ All rights reserved.
+  ~ Project: My Application
+  ~ File: fragment_photo_preview.xml
+  ~ Last Modified: 5/10/2025 5:27
+  -->
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- Preview Image with zoom capability -->
+    <ImageView
+        android:id="@+id/img_preview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/detection_info_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Detection Info Container -->
+    <LinearLayout
+        android:id="@+id/detection_info_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#CC000000"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!-- Detected Objects Text -->
+        <TextView
+            android:id="@+id/txt_detected_objects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:gravity="center"
+            android:text="@string/analyzing_image"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Button Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <!-- Back to Camera Button -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_back_to_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/back_to_camera"
+                android:src="@drawable/ic_arrow_back"
+                app:backgroundTint="@color/surface_color"
+                app:fabSize="normal"
+                app:tint="@color/primary_text" />
+
+            <!-- Save Photo Button (visible only for temp photos) -->
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btn_save_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/save_photo"
+                android:src="@drawable/ic_save"
+                android:visibility="gone"
+                app:backgroundTint="@color/primary_color"
+                app:fabSize="normal"
+                app:tint="@android:color/white" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
