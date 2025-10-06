@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: SettingsFragment.java
- * Last Modified: 6/10/2025 10:44
+ * Last Modified: 6/10/2025 10:46
  */
 
 package vn.edu.usth.myapplication;
@@ -94,8 +94,8 @@ public class SettingsFragment extends Fragment {
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
                 emailIntent.setType("message/rfc822");
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"kingnopro0002@gmail.com"});
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for Photo Translation App");
-                emailIntent.putExtra(Intent.EXTRA_TEXT, "Your feedback here...");
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for Cam Study App");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "Please provide your feedback here...");
                 startActivity(Intent.createChooser(emailIntent, "Send feedback via..."));
             } catch (Exception e) {
                 Toast.makeText(getContext(), "No email app found!", Toast.LENGTH_SHORT).show();
