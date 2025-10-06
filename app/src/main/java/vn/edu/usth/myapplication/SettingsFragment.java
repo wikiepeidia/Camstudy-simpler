@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: SettingsFragment.java
- * Last Modified: 5/10/2025 10:43
+ * Last Modified: 6/10/2025 10:44
  */
 
 package vn.edu.usth.myapplication;
@@ -34,6 +34,7 @@ public class SettingsFragment extends Fragment {
     private SwitchMaterial switchDarkMode;
     private UserDatabase userDatabase;
     private boolean isDarkModeChanging = false;
+    private LinearLayout btnFeedback;
 
     // Public method to get flash preference for use in other fragments
     public static boolean isFlashEnabled(Context context) {
@@ -58,6 +59,7 @@ public class SettingsFragment extends Fragment {
         switchFlash = view.findViewById(R.id.switch_flash);
         switchDarkMode = view.findViewById(R.id.switch_dark_mode);
         LinearLayout logoutLayout = view.findViewById(R.id.layout_logout);
+        btnFeedback = view.findViewById(R.id.btnFeedback);
 
         // Load saved preferences
         loadPreferences();
@@ -85,6 +87,20 @@ public class SettingsFragment extends Fragment {
         });
 
         logoutLayout.setOnClickListener(v -> showLogoutDialog());
+
+        // Feedback button listener
+        btnFeedback.setOnClickListener(v -> {
+            try {
+                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent.setType("message/rfc822");
+                emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"kingnopro0002@gmail.com"});
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for Photo Translation App");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "Your feedback here...");
+                startActivity(Intent.createChooser(emailIntent, "Send feedback via..."));
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "No email app found!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return view;
     }
