@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: SettingsFragment.java
- * Last Modified: 6/10/2025 10:46
+ * Last Modified: 5/10/2025 10:43
  */
 
 package vn.edu.usth.myapplication;
@@ -30,17 +30,9 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 public class SettingsFragment extends Fragment {
 
     private SharedPreferences sharedPreferences;
-    private SwitchMaterial switchFlash;
     private SwitchMaterial switchDarkMode;
     private UserDatabase userDatabase;
     private boolean isDarkModeChanging = false;
-    private LinearLayout btnFeedback;
-
-    // Public method to get flash preference for use in other fragments
-    public static boolean isFlashEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences("PhotoMagicPrefs", Context.MODE_PRIVATE);
-        return prefs.getBoolean("flash_mode", false);
-    }
 
     // Public method to check if dark mode is enabled
     public static boolean isDarkModeEnabled(Context context) {
@@ -55,21 +47,12 @@ public class SettingsFragment extends Fragment {
 
         sharedPreferences = requireContext().getSharedPreferences("PhotoMagicPrefs", Context.MODE_PRIVATE);
         userDatabase = new UserDatabase(requireContext());
-
-        switchFlash = view.findViewById(R.id.switch_flash);
+        LinearLayout btnFeedback = view.findViewById(R.id.btnFeedback);
         switchDarkMode = view.findViewById(R.id.switch_dark_mode);
         LinearLayout logoutLayout = view.findViewById(R.id.layout_logout);
-        btnFeedback = view.findViewById(R.id.btnFeedback);
 
         // Load saved preferences
         loadPreferences();
-
-        // Set up listeners
-        switchFlash.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            savePreference("flash_mode", isChecked);
-            String message = isChecked ? "Flash enabled" : "Flash disabled";
-            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-        });
 
         switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // Prevent recursive calls
@@ -85,28 +68,24 @@ public class SettingsFragment extends Fragment {
                 showRestartDialog(isChecked);
             }
         });
-
-        logoutLayout.setOnClickListener(v -> showLogoutDialog());
-
-        // Feedback button listener
         btnFeedback.setOnClickListener(v -> {
             try {
                 Intent emailIntent = new Intent(Intent.ACTION_SEND);
                 emailIntent.setType("message/rfc822");
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"kingnopro0002@gmail.com"});
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for Cam Study App");
-                emailIntent.putExtra(Intent.EXTRA_TEXT, "Please provide your feedback here...");
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Feedback for CamStudy App");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "Your feedback here...");
                 startActivity(Intent.createChooser(emailIntent, "Send feedback via..."));
             } catch (Exception e) {
                 Toast.makeText(getContext(), "No email app found!", Toast.LENGTH_SHORT).show();
-            }
-        });
+            }});
+
+        logoutLayout.setOnClickListener(v -> showLogoutDialog());
 
         return view;
     }
 
     private void loadPreferences() {
-        switchFlash.setChecked(sharedPreferences.getBoolean("flash_mode", false));
         switchDarkMode.setChecked(sharedPreferences.getBoolean("dark_mode", false));
     }
 

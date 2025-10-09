@@ -58,7 +58,7 @@
             android:layout_width="96dp"
             android:layout_height="96dp"
             android:layout_marginBottom="16dp"
-            android:src="@drawable/ic_gallery"
+            android:src="@drawable/ic_flash"
             android:tint="@color/secondary_text" />
 
         <TextView

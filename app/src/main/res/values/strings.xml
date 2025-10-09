@@ -74,4 +74,9 @@
     <string name="translate">Translate</string>
     <string name="translation_tips">ℹ️ Translation Tips</string>
     <string name="translation_tips_content">• Translations are shown in Vietnamese, Japanese, and French\n• For real-time translation, integrate Google Translate API\n• Single words work best for object detection</string>
+    <string name="camera_icon">Camera Icon</string>
+    <string name="_1_0x">1.0x</string>
+    <string name="_2_0x">2.0x</string>
+    <string name="camera_controls">Camera Controls</string>
+    <string name="flash_button">Flash Button</string>
 </resources>

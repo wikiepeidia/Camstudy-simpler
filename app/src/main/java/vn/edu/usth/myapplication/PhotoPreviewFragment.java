@@ -53,7 +53,6 @@ public class PhotoPreviewFragment extends Fragment {
 
     private static final String TAG = "PhotoPreviewFragment";
     private static final String ARG_PHOTO_URI = "photo_uri";
-    private static final String ARG_TIMESTAMP = "timestamp";
     private static final String ARG_IS_TEMP = "is_temp";
 
     private ImageView imgPreview;

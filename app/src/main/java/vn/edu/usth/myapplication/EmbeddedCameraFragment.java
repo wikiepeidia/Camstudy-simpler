@@ -1,256 +1,167 @@
-/*
- * Copyright (c) 2025 Android project OpenVision API
- * All rights reserved.
- * Project: My Application
- * File: EmbeddedCameraFragment.java
- * Last Modified: 5/10/2025 10:22
- */
 
 package vn.edu.usth.myapplication;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.ScaleGestureDetector;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.view.*;
+import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.camera.core.Camera;
-import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraInfo;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.Preview;
-import androidx.camera.core.ZoomState;
+import androidx.camera.core.*;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class EmbeddedCameraFragment extends Fragment {
-
     private static final String TAG = "EmbeddedCameraFragment";
-
     private ImageCapture imageCapture;
     private ExecutorService cameraExecutor;
     private PreviewView previewView;
-    private View permissionLayout;
+    private View permissionLayout, zoomControlLayout;
     private CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
-    private Camera camera;
     private CameraControl cameraControl;
     private CameraInfo cameraInfo;
     private SeekBar zoomSlider;
     private TextView txtZoomLevel;
-    private View zoomControlLayout;
     private Button btnZoom1x, btnZoom2x;
     private ScaleGestureDetector scaleGestureDetector;
     private float currentZoomRatio = 1.0f;
+    private SharedPreferences sharedPreferences;
 
     private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                boolean allGranted = true;
-                for (Boolean granted : result.values()) {
-                    if (granted == null || !granted) {
-                        allGranted = false;
-                        break;
-                    }
-                }
-                if (allGranted) {
-                    startCamera();
-                } else {
-                    showPermissionLayout();
-                    Toast.makeText(requireContext(), "Permissions denied", Toast.LENGTH_SHORT).show();
-                }
+                if (result.values().stream().allMatch(Boolean::booleanValue)) startCamera();
+                else { showPermissionLayout(); Toast.makeText(requireContext(), "Permissions denied", Toast.LENGTH_SHORT).show(); }
             });
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_camera, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_camera, container, false);
+        previewView = v.findViewById(R.id.preview_view);
+        permissionLayout = v.findViewById(R.id.permission_layout);
+        zoomSlider = v.findViewById(R.id.zoom_slider);
+        txtZoomLevel = v.findViewById(R.id.txt_zoom_level);
+        zoomControlLayout = v.findViewById(R.id.zoom_control);
+        btnZoom1x = v.findViewById(R.id.btn_zoom_1x);
+        btnZoom2x = v.findViewById(R.id.btn_zoom_2x);
+        FloatingActionButton btnCapture = v.findViewById(R.id.btn_capture);
+        FloatingActionButton btnSwitchCamera = v.findViewById(R.id.btn_switch_camera);
+        FloatingActionButton btnFlash = v.findViewById(R.id.btn_flash);
+        MaterialButton btnGrantPermission = v.findViewById(R.id.btn_grant_permission);
+        sharedPreferences = requireContext().getSharedPreferences("PhotoMagicPrefs", Context.MODE_PRIVATE);
 
-        previewView = view.findViewById(R.id.preview_view);
-        permissionLayout = view.findViewById(R.id.permission_layout);
-        zoomSlider = view.findViewById(R.id.zoom_slider);
-        txtZoomLevel = view.findViewById(R.id.txt_zoom_level);
-        zoomControlLayout = view.findViewById(R.id.zoom_control);
-        btnZoom1x = view.findViewById(R.id.btn_zoom_1x);
-        btnZoom2x = view.findViewById(R.id.btn_zoom_2x);
-
-        // Camera controls
-        FloatingActionButton btnCapture = view.findViewById(R.id.btn_capture);
-        FloatingActionButton btnSwitchCamera = view.findViewById(R.id.btn_switch_camera);
-        FloatingActionButton btnGallery = view.findViewById(R.id.btn_gallery);
-        MaterialButton btnGrantPermission = view.findViewById(R.id.btn_grant_permission);
-
-        // Set up button click listeners
-        btnCapture.setOnClickListener(v -> takePhoto());
-        btnSwitchCamera.setOnClickListener(v -> switchCamera());
-        btnGallery.setOnClickListener(v -> openGallery());
-        btnGrantPermission.setOnClickListener(v -> requestAppPermissions());
-
-        // Set up zoom controls
+        btnCapture.setOnClickListener(x -> takePhoto());
+        btnSwitchCamera.setOnClickListener(x -> switchCamera());
+        btnGrantPermission.setOnClickListener(x -> requestAppPermissions());
+        btnFlash.setOnClickListener(x -> toggleFlash());
         setupZoomControl();
         setupPinchToZoom();
-
         cameraExecutor = Executors.newSingleThreadExecutor();
 
-        // Check permissions and start camera
-        if (allPermissionsGranted()) {
-            startCamera();
-        } else {
-            showPermissionLayout();
-        }
-
-        return view;
+        if (allPermissionsGranted()) startCamera(); else showPermissionLayout();
+        return v;
     }
 
+    private void toggleFlash() {
+        boolean newState = !sharedPreferences.getBoolean("flash_mode", false);
+        sharedPreferences.edit().putBoolean("flash_mode", newState).apply();
+        if (cameraControl != null) cameraControl.enableTorch(newState);
+    }
     private void setupZoomControl() {
         zoomSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            public void onProgressChanged(SeekBar s, int p, boolean f) {
                 if (cameraControl != null && cameraInfo != null) {
-                    float minZoom = cameraInfo.getZoomState().getValue().getMinZoomRatio();
-                    float maxZoom = cameraInfo.getZoomState().getValue().getMaxZoomRatio();
-
-                    // Calculate zoom ratio from progress (0-100)
-                    currentZoomRatio = minZoom + (progress / 100f) * (maxZoom - minZoom);
-
-                    // Apply zoom
+                    ZoomState zs = cameraInfo.getZoomState().getValue();
+                    float min = zs.getMinZoomRatio(), max = zs.getMaxZoomRatio();
+                    currentZoomRatio = min + (p / 100f) * (max - min);
                     cameraControl.setZoomRatio(currentZoomRatio);
-
-                    // Update zoom level text
                     txtZoomLevel.setText(String.format(Locale.US, "%.1fx", currentZoomRatio));
                 }
             }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
+            public void onStartTrackingTouch(SeekBar s) {}
+            public void onStopTrackingTouch(SeekBar s) {}
         });
-
-        // Zoom preset buttons
-        btnZoom1x.setOnClickListener(v -> setZoomRatio(1.0f));
-        btnZoom2x.setOnClickListener(v -> setZoomRatio(2.0f));
+        btnZoom1x.setOnClickListener(x -> setZoomRatio(1.0f));
+        btnZoom2x.setOnClickListener(x -> setZoomRatio(2.0f));
     }
 
     private void setupPinchToZoom() {
         scaleGestureDetector = new ScaleGestureDetector(requireContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
-            public boolean onScale(ScaleGestureDetector detector) {
+            public boolean onScale(@NonNull ScaleGestureDetector d) {
                 if (cameraInfo != null && cameraControl != null) {
-                    float scale = detector.getScaleFactor();
-                    float minZoom = cameraInfo.getZoomState().getValue().getMinZoomRatio();
-                    float maxZoom = cameraInfo.getZoomState().getValue().getMaxZoomRatio();
-
-                    // Calculate new zoom ratio
-                    currentZoomRatio *= scale;
-                    currentZoomRatio = Math.max(minZoom, Math.min(currentZoomRatio, maxZoom));
-
-                    // Apply zoom
+                    ZoomState zs = cameraInfo.getZoomState().getValue();
+                    float min = zs.getMinZoomRatio(), max = zs.getMaxZoomRatio();
+                    currentZoomRatio = Math.max(min, Math.min(currentZoomRatio * d.getScaleFactor(), max));
                     cameraControl.setZoomRatio(currentZoomRatio);
-
-                    // Update UI
-                    updateZoomUI(currentZoomRatio, minZoom, maxZoom);
+                    updateZoomUI(currentZoomRatio, min, max);
                 }
                 return true;
             }
         });
-
-        previewView.setOnTouchListener((v, event) -> {
-            scaleGestureDetector.onTouchEvent(event);
-            return true;
-        });
+        previewView.setOnTouchListener((v, e) -> { scaleGestureDetector.onTouchEvent(e); return true; });
     }
 
     private void setZoomRatio(float targetZoom) {
         if (cameraControl != null && cameraInfo != null) {
-            float minZoom = cameraInfo.getZoomState().getValue().getMinZoomRatio();
-            float maxZoom = cameraInfo.getZoomState().getValue().getMaxZoomRatio();
-
-            // Clamp target zoom to valid range
-            targetZoom = Math.max(minZoom, Math.min(targetZoom, maxZoom));
-            currentZoomRatio = targetZoom;
-
-            // Apply zoom
-            cameraControl.setZoomRatio(targetZoom);
-
-            // Update UI
-            updateZoomUI(targetZoom, minZoom, maxZoom);
+            ZoomState zs = cameraInfo.getZoomState().getValue();
+            float min = zs.getMinZoomRatio(), max = zs.getMaxZoomRatio();
+            currentZoomRatio = Math.max(min, Math.min(targetZoom, max));
+            cameraControl.setZoomRatio(currentZoomRatio);
+            updateZoomUI(currentZoomRatio, min, max);
         }
     }
 
-    private void updateZoomUI(float zoomRatio, float minZoom, float maxZoom) {
-        // Update text
+    private void updateZoomUI(float zoomRatio, float min, float max) {
         txtZoomLevel.setText(String.format(Locale.US, "%.1fx", zoomRatio));
-
-        // Update slider
-        int progress = (int) ((zoomRatio - minZoom) / (maxZoom - minZoom) * 100);
-        zoomSlider.setProgress(progress);
+        zoomSlider.setProgress((int) ((zoomRatio - min) / (max - min) * 100));
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // If user returned from Settings and granted permission, start camera
-        if (allPermissionsGranted()) {
-            startCamera();
-        } else {
-            showPermissionLayout();
-        }
+        if (allPermissionsGranted()) startCamera(); else showPermissionLayout();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (cameraControl != null) cameraControl.enableTorch(false);
+        sharedPreferences.edit().putBoolean("flash_mode", false).apply();
     }
 
     private void requestAppPermissions() {
         List<String> req = new ArrayList<>();
         req.add(Manifest.permission.CAMERA);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            // Legacy external storage write is required to save to public Pictures on < 29
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q)
             req.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
         requestPermissionsLauncher.launch(req.toArray(new String[0]));
     }
 
     private void startCamera() {
         permissionLayout.setVisibility(View.GONE);
         previewView.setVisibility(View.VISIBLE);
-
-        ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-                ProcessCameraProvider.getInstance(requireContext());
-
-        cameraProviderFuture.addListener(() -> {
-            try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                bindCameraUseCases(cameraProvider);
-            } catch (Exception e) {
+        ListenableFuture<ProcessCameraProvider> f = ProcessCameraProvider.getInstance(requireContext());
+        f.addListener(() -> {
+            try { bindCameraUseCases(f.get()); }
+            catch (Exception e) {
                 Log.e(TAG, "Use case binding failed", e);
                 Toast.makeText(requireContext(), "Failed to start camera: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 showPermissionLayout();
@@ -258,32 +169,22 @@ public class EmbeddedCameraFragment extends Fragment {
         }, ContextCompat.getMainExecutor(requireContext()));
     }
 
-    private void bindCameraUseCases(ProcessCameraProvider cameraProvider) {
-        Preview preview = new Preview.Builder()
-                .build();
+    private void bindCameraUseCases(ProcessCameraProvider provider) {
+        Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(previewView.getSurfaceProvider());
-
-        // Build ImageCapture with better error handling and compatibility
         imageCapture = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .setTargetRotation(previewView.getDisplay().getRotation())
                 .build();
-
         try {
-            cameraProvider.unbindAll();
-            camera = cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture);
-
-            // Get camera control for flash and zoom
+            provider.unbindAll();
+            Camera camera = provider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
             cameraControl = camera.getCameraControl();
             cameraInfo = camera.getCameraInfo();
-
-            // Apply flash settings
+            boolean flashEnabled = sharedPreferences.getBoolean("flash_mode", false);
+            cameraControl.enableTorch(flashEnabled);
             updateFlashMode();
-
-            // Initialize zoom control
             initializeZoomControl();
-
         } catch (Exception e) {
             Log.e(TAG, "Use case binding failed", e);
             Toast.makeText(requireContext(), "Camera bind failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -292,37 +193,20 @@ public class EmbeddedCameraFragment extends Fragment {
 
     private void initializeZoomControl() {
         if (cameraInfo != null) {
-            ZoomState zoomState = cameraInfo.getZoomState().getValue();
-            if (zoomState != null) {
-                float minZoom = zoomState.getMinZoomRatio();
-                float maxZoom = zoomState.getMaxZoomRatio();
-
-                // Reset zoom to minimum
-                currentZoomRatio = minZoom;
-                zoomSlider.setProgress(0);
-                txtZoomLevel.setText(String.format(Locale.US, "%.1fx", minZoom));
-
-                // Show zoom control if camera supports zoom
-                if (maxZoom > minZoom) {
-                    zoomControlLayout.setVisibility(View.VISIBLE);
-
-                    // Enable/disable 2x button based on max zoom
-                    btnZoom2x.setEnabled(maxZoom >= 2.0f);
-                } else {
-                    zoomControlLayout.setVisibility(View.GONE);
-                }
-            }
+            ZoomState zs = cameraInfo.getZoomState().getValue();
+            float min = zs.getMinZoomRatio(), max = zs.getMaxZoomRatio();
+            currentZoomRatio = min;
+            zoomSlider.setProgress(0);
+            txtZoomLevel.setText(String.format(Locale.US, "%.1fx", min));
+            zoomControlLayout.setVisibility(max > min ? View.VISIBLE : View.GONE);
+            btnZoom2x.setEnabled(max >= 2.0f);
         }
     }
 
     private void updateFlashMode() {
         if (cameraControl != null && imageCapture != null) {
-            boolean flashEnabled = SettingsFragment.isFlashEnabled(requireContext());
-            if (flashEnabled) {
-                imageCapture.setFlashMode(ImageCapture.FLASH_MODE_ON);
-            } else {
-                imageCapture.setFlashMode(ImageCapture.FLASH_MODE_OFF);
-            }
+            imageCapture.setFlashMode(sharedPreferences.getBoolean("flash_mode", false) ?
+                    ImageCapture.FLASH_MODE_ON : ImageCapture.FLASH_MODE_OFF);
         }
     }
 
@@ -331,50 +215,29 @@ public class EmbeddedCameraFragment extends Fragment {
             Toast.makeText(requireContext(), "Camera is not ready", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Update flash mode before capture
         updateFlashMode();
-
-        String name = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
-                .format(System.currentTimeMillis());
-
-        // Save to temporary cache directory instead of gallery
+        String name = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US).format(System.currentTimeMillis());
         File photoFile = new File(requireContext().getCacheDir(), "temp_" + name + ".jpg");
-        ImageCapture.OutputFileOptions outputOptions =
-                new ImageCapture.OutputFileOptions.Builder(photoFile).build();
-
-        imageCapture.takePicture(
-                outputOptions,
-                ContextCompat.getMainExecutor(requireContext()),
-                new ImageCapture.OnImageSavedCallback() {
-                    @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
-                        Uri uri = Uri.fromFile(photoFile);
-                        long ts = System.currentTimeMillis();
-
-                        // Navigate to PhotoPreviewFragment with temp flag
-                        Bundle args = new Bundle();
-                        args.putString("photo_uri", uri.toString());
-                        args.putLong("timestamp", ts);
-                        args.putBoolean("is_temp", true); // Mark as temporary photo
-                        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-                        navController.navigate(R.id.nav_photo_preview, args);
-                    }
-
-                    @Override
-                    public void onError(@NonNull ImageCaptureException exception) {
-                        Log.e(TAG, "Photo capture failed: " + exception.getMessage(), exception);
-                        String errorMsg = "Photo capture failed!";
-                        if (exception.getMessage() != null && exception.getMessage().contains("CAMERA_CLOSED")) {
-                            errorMsg = "Camera was closed. Please try again.";
-                            startCamera(); // Restart camera
-                        } else if (exception.getMessage() != null && exception.getMessage().contains("FILE_IO_ERROR")) {
-                            errorMsg = "Storage error. Check storage permissions.";
-                        }
-                        Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show();
-                    }
+        ImageCapture.OutputFileOptions opts = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+        imageCapture.takePicture(opts, ContextCompat.getMainExecutor(requireContext()), new ImageCapture.OnImageSavedCallback() {
+            public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
+                Bundle args = new Bundle();
+                args.putString("photo_uri", Uri.fromFile(photoFile).toString());
+                args.putLong("timestamp", System.currentTimeMillis());
+                args.putBoolean("is_temp", true);
+                Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(R.id.nav_photo_preview, args);
+            }
+            public void onError(@NonNull ImageCaptureException e) {
+                Log.e(TAG, "Photo capture failed: " + e.getMessage(), e);
+                String msg = "Photo capture failed!";
+                if (e.getMessage() != null && e.getMessage().contains("CAMERA_CLOSED")) {
+                    msg = "Camera was closed. Please try again."; startCamera();
+                } else if (e.getMessage() != null && e.getMessage().contains("FILE_IO_ERROR")) {
+                    msg = "Storage error. Check storage permissions.";
                 }
-        );
+                Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void switchCamera() {
@@ -383,21 +246,11 @@ public class EmbeddedCameraFragment extends Fragment {
         startCamera();
     }
 
-    private void openGallery() {
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
-        navController.navigate(R.id.nav_history);
-    }
-
     private boolean allPermissionsGranted() {
-        boolean cam = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED;
+        boolean cam = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
         if (!cam) return false;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            // Need write for legacy public external storage
-            return ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED;
-        }
-        return true;
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
+                ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void showPermissionLayout() {
@@ -409,8 +262,6 @@ public class EmbeddedCameraFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (cameraExecutor != null) {
-            cameraExecutor.shutdown();
-        }
+        if (cameraExecutor != null) cameraExecutor.shutdown();
     }
 }
