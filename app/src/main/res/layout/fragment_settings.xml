@@ -50,7 +50,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Camera Settings"
+                    android:text="Theme"
                     android:textColor="@color/primary_text"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -190,7 +190,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Provide the feedback !"
+                            android:text="Have any suggestions?"
                             android:textColor="@color/secondary_text"
                             android:textSize="14sp" />
 
@@ -230,14 +230,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="Version 1.10.25"
+                    android:text="Version 1.2 Beta"
                     android:textColor="@color/secondary_text"
                     android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="A powerful camera app that identify your object, transate it and read it!"
+                    android:text="@string/Appdesc"
                     android:textColor="@color/secondary_text"
                     android:textSize="14sp" />
 

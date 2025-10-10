@@ -69,6 +69,7 @@ public class TranslationFragment extends Fragment {
     private String initialDetectedObject = null;
 
     private AzureTranslatorService translatorService;
+    private TranslationHistoryDatabase historyDatabase;
     private TextToSpeech tts;
     private boolean ttsReady = false;
     private String currentTargetCode = "vi";
@@ -110,6 +111,9 @@ public class TranslationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_translation, container, false);
+
+        // Initialize database
+        historyDatabase = new TranslationHistoryDatabase(getContext());
 
         imgPreview = v.findViewById(R.id.img_preview_small);
         txtObjectDetected = v.findViewById(R.id.txt_object_detected);
@@ -287,6 +291,11 @@ public class TranslationFragment extends Fragment {
                 runOnUi(() -> {
                     etTranslatedText.setText(out);
                     setLoading(false);
+
+                    // Save translation to database
+                    if (historyDatabase != null) {
+                        historyDatabase.saveTranslation(src, out);
+                    }
 
                     // Reset speed counter if text changed
                     if (!out.equals(lastTranslatedText)) {

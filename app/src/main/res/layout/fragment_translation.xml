@@ -78,15 +78,7 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Detection Info -->
-        <TextView
-            android:id="@+id/txt_detected_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="@string/detected_single_object"
-            android:textColor="@color/secondary_text"
-            android:textSize="14sp" />
+
 
         <!-- Source Language Display -->
         <TextView
