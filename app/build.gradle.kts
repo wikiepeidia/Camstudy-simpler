@@ -32,8 +32,11 @@ android {
         if (localPropertiesFile.exists()) {
             properties.load(FileInputStream(localPropertiesFile))
         }
-
-        buildConfigField(
+        buildFeatures {
+            buildConfig = true
+            viewBinding = true
+        }
+            buildConfigField(
             "String",
             "AZURE_TRANSLATOR_KEY",
             "\"${properties.getProperty("AZURE_TRANSLATOR_KEY", "")}\""
@@ -44,13 +47,6 @@ android {
             "\"${properties.getProperty("AZURE_TRANSLATOR_REGION", "")}\""
         )
     }
-
-    buildFeatures {
-        viewBinding = true
-        mlModelBinding = true
-        buildConfig = true
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false

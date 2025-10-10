@@ -1,4 +1,4 @@
-
+// app/src/main/java/vn/edu/usth/myapplication/EmbeddedCameraFragment.java
 package vn.edu.usth.myapplication;
 
 import android.Manifest;
@@ -70,7 +70,8 @@ public class EmbeddedCameraFragment extends Fragment {
         btnCapture.setOnClickListener(x -> takePhoto());
         btnSwitchCamera.setOnClickListener(x -> switchCamera());
         btnGrantPermission.setOnClickListener(x -> requestAppPermissions());
-        btnFlash.setOnClickListener(x -> toggleFlash());
+        btnFlash.setOnClickListener(x -> toggleFlash(btnFlash));
+
         setupZoomControl();
         setupPinchToZoom();
         cameraExecutor = Executors.newSingleThreadExecutor();
@@ -79,11 +80,12 @@ public class EmbeddedCameraFragment extends Fragment {
         return v;
     }
 
-    private void toggleFlash() {
+    private void toggleFlash(FloatingActionButton btnFlash) {
         boolean newState = !sharedPreferences.getBoolean("flash_mode", false);
         sharedPreferences.edit().putBoolean("flash_mode", newState).apply();
         if (cameraControl != null) cameraControl.enableTorch(newState);
     }
+
     private void setupZoomControl() {
         zoomSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             public void onProgressChanged(SeekBar s, int p, boolean f) {
