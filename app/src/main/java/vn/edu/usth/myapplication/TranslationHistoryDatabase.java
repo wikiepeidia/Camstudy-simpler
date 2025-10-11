@@ -3,66 +3,86 @@
  * All rights reserved.
  * Project: My Application
  * File: TranslationHistoryDatabase.java
- * Last Modified: 10/10/2025 9:51
+ * Last Modified: 10/10/2025
  */
 
 package vn.edu.usth.myapplication;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class TranslationHistoryDatabase {
-    private static final String PREF_NAME = "TranslationHistoryDB";
-    private static final String KEY_ENTRIES = "translation_entries"; // format: sourceText|translatedText|timestamp
-    private static final int MAX_HISTORY = 50; // Maximum number of translations to keep
+public class TranslationHistoryDatabase extends SQLiteOpenHelper {
 
-    private final SharedPreferences sharedPreferences;
+    private static final String DB_NAME = "translation_history.db";
+    private static final int DB_VERSION = 1;
+    private static final String TABLE_NAME = "translations";
+
+    private static final String COL_ID = "id";
+    private static final String COL_SOURCE = "source_text";
+    private static final String COL_TRANSLATED = "translated_text";
+    private static final String COL_TIME = "created_at";
 
     public TranslationHistoryDatabase(Context context) {
-        sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        super(context, DB_NAME, null, DB_VERSION);
     }
 
-    public void saveTranslation(String sourceText, String translatedText) {
-        long timestamp = System.currentTimeMillis();
-        Set<String> existing = sharedPreferences.getStringSet(KEY_ENTRIES, new HashSet<>());
-        List<String> allEntries = new ArrayList<>(existing);
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        String sql = "CREATE TABLE " + TABLE_NAME + " (" +
+                COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COL_SOURCE + " TEXT, " +
+                COL_TRANSLATED + " TEXT, " +
+                COL_TIME + " DATETIME DEFAULT CURRENT_TIMESTAMP)"
+                ;
+        db.execSQL(sql);
+    }
 
-        // Add new entry at the beginning (newest first)
-        String newEntry = sourceText + "|" + translatedText + "|" + timestamp;
-        allEntries.add(0, newEntry);
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+    }
 
-        // Keep only the latest MAX_HISTORY entries
-        if (allEntries.size() > MAX_HISTORY) {
-            allEntries = allEntries.subList(0, MAX_HISTORY);
+
+    public void addTranslation(String source, String translated) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+
+        ContentValues values = new ContentValues();
+        values.put(COL_SOURCE, source);
+        values.put(COL_TRANSLATED, translated);
+        db.insert(TABLE_NAME, null, values);
+
+
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME, null);
+        if (cursor.moveToFirst()) {
+            int count = cursor.getInt(0);
+            if (count > 20) {
+                db.execSQL("DELETE FROM " + TABLE_NAME +
+                        " WHERE " + COL_ID + " IN (SELECT " + COL_ID +
+                        " FROM " + TABLE_NAME + " ORDER BY " + COL_TIME + " ASC LIMIT " + (count - 20) + ")");
+            }
         }
-
-        // Save back to SharedPreferences
-        Set<String> updated = new HashSet<>(allEntries);
-        sharedPreferences.edit().putStringSet(KEY_ENTRIES, updated).apply();
+        cursor.close();
+        db.close();
     }
 
     public List<String[]> getAllTranslations() {
-        Set<String> stored = sharedPreferences.getStringSet(KEY_ENTRIES, new HashSet<>());
-        List<String[]> result = new ArrayList<>();
-
-        for (String entry : stored) {
-            String[] parts = entry.split("\\|", 3);
-            if (parts.length >= 2) {
-                // Return [sourceText, translatedText]
-                result.add(new String[]{parts[0], parts[1]});
-            }
+        List<String[]> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT " + COL_SOURCE + ", " + COL_TRANSLATED +
+                " FROM " + TABLE_NAME + " ORDER BY " + COL_TIME + " DESC", null);
+        while (c.moveToNext()) {
+            list.add(new String[]{c.getString(0), c.getString(1)});
         }
-
-        return result;
-    }
-
-    public void clear() {
-        sharedPreferences.edit().remove(KEY_ENTRIES).apply();
+        c.close();
+        db.close();
+        return list;
     }
 }
-

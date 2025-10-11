@@ -110,18 +110,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Detect Language Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_detect_language"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="16dp"
-            android:text="Detect Source Language"
-            android:textSize="14sp"
-            app:cornerRadius="8dp"
-            app:icon="@drawable/ic_language"
-            app:iconGravity="textStart" />
 
         <!-- Target Language Dropdown -->
         <com.google.android.material.textfield.TextInputLayout
