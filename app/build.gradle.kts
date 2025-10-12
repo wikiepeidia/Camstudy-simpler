@@ -21,8 +21,8 @@ android {
         applicationId = "vn.edu.usth.myapplication"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.2beta"
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
