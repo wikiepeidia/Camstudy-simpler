@@ -34,12 +34,6 @@ public class SettingsFragment extends Fragment {
     private UserDatabase userDatabase;
     private boolean isDarkModeChanging = false;
 
-    // Public method to check if dark mode is enabled
-    public static boolean isDarkModeEnabled(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences("PhotoMagicPrefs", Context.MODE_PRIVATE);
-        return prefs.getBoolean("dark_mode", false);
-    }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

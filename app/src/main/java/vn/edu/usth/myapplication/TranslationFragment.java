@@ -15,7 +15,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
@@ -51,7 +50,7 @@ public class TranslationFragment extends Fragment {
     private TextView txtObjectDetected, txtSourceLanguage;
     private TextInputEditText etSourceText, etTranslatedText;
     private AutoCompleteTextView spinnerTargetLanguage;
-    private MaterialButton btnDetectLanguage, btnTranslate, btnSpeak, btnStop, btnBack;
+    private MaterialButton btnTranslate, btnSpeak, btnStop, btnBack;
     private ProgressBar progressBar;
 
     private String[] detectedObjects;
@@ -71,7 +70,7 @@ public class TranslationFragment extends Fragment {
             photoUri = getArguments().getString(ARG_PHOTO_URI);
             userInputText = getArguments().getString(ARG_USER_INPUT_TEXT);
         }
-        // build ngôn ngữ nhanh
+
         for (String[] row : LANGS) { languageMap.put(row[0], row[1]); languageNames.add(row[0]); }
         languageNames.sort(String::compareTo);
 
