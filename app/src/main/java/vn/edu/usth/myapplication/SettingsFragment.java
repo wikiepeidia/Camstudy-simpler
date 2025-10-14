@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,10 @@ public class SettingsFragment extends Fragment {
         LinearLayout btnFeedback = view.findViewById(R.id.btnFeedback);
         switchDarkMode = view.findViewById(R.id.switch_dark_mode);
         LinearLayout logoutLayout = view.findViewById(R.id.layout_logout);
+        TextView txtVersion = view.findViewById(R.id.txt_version);
+
+        // Set version dynamically from BuildConfig
+        txtVersion.setText("Version " + BuildConfig.VERSION_NAME);
 
         // Load saved preferences
         loadPreferences();

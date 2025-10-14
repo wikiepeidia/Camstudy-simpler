@@ -178,17 +178,42 @@ public class TranslationFragment extends Fragment {
         translatorService.translate(src, currentTargetCode, new AzureTranslatorService.TranslationCallback() {
             @Override public void onSuccess(String out) {
                 runOnUi(() -> {
+                    // Check if fragment is still attached and view exists
+                    if (!isAdded() || getView() == null) {
+                        return;
+                    }
+
                     etTranslatedText.setText(out);
                     setLoading(false);
-                    if (ttsReady) { btnSpeak.setVisibility(View.VISIBLE); btnStop.setVisibility(View.VISIBLE); }
-                    toast("Translation completed!");
+
+                    // Always show buttons after successful translation
+                    btnSpeak.setVisibility(View.VISIBLE);
+                    btnStop.setVisibility(View.VISIBLE);
+
+                    // Enable/disable based on TTS readiness
+                    if (!ttsReady) {
+                        btnSpeak.setEnabled(false);
+                        btnStop.setEnabled(false);
+                        toast("Translation completed! (Speech unavailable)");
+                    } else {
+                        btnSpeak.setEnabled(true);
+                        btnStop.setEnabled(true);
+                        toast("Translation completed!");
+                    }
 
                     TranslationHistoryDatabase db = new TranslationHistoryDatabase(getContext());
                     db.addTranslation(safeText(etSourceText), out);
                 });
             }
             @Override public void onError(String err) {
-                runOnUi(() -> { setLoading(false); toast("Azure error. Check key/region in local.properties"); });
+                runOnUi(() -> {
+                    // Check if fragment is still attached
+                    if (!isAdded() || getView() == null) {
+                        return;
+                    }
+                    setLoading(false);
+                    toast("Azure error. Check key/region in local.properties");
+                });
             }
         });
     }
@@ -207,8 +232,17 @@ public class TranslationFragment extends Fragment {
         return et.getText() == null ? "" : et.getText().toString().trim();
     }
 
-    private void toast(String s) { Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show(); }
-    private void runOnUi(Runnable r) { if (getActivity()!=null) getActivity().runOnUiThread(r); }
+    private void toast(String s) {
+        if (isAdded() && getContext() != null) {
+            Toast.makeText(getContext(), s, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void runOnUi(Runnable r) {
+        if (getActivity() != null && isAdded()) {
+            getActivity().runOnUiThread(r);
+        }
+    }
 
     @Override public void onDestroy() {
         if (tts != null) { try { tts.stop(); tts.shutdown(); } catch (Exception ignored) {} }

@@ -18,7 +18,7 @@
     <string name="take_photo">Take Photo</string>
     <string name="take_photo_desc">Capture beautiful moments</string>
     <string name="view_history">View History</string>
-    <string name="view_history_desc">Browse your photo gallery</string>
+    <string name="view_history_desc">Review your previous translations</string>
     <string name="photo_history">History</string>
     <string name="camera_permission_required">Camera permission is required</string>
     <string name="grant_permission">Grant Permission</string>
