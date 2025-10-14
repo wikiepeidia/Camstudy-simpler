@@ -13,7 +13,7 @@ import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
-public class MyApplication extends Application {
+public class DarkMode extends Application {
 
     @Override
     public void onCreate() {

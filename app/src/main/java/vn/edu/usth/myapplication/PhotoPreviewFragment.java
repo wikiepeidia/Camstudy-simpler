@@ -178,7 +178,7 @@ public class PhotoPreviewFragment extends Fragment {
                 Log.d(TAG, "Bitmap config: " + bitmap.getConfig());
 
                 // Ensure bitmap is in correct format - MUST create mutable copy
-                Bitmap processedBitmap = bitmap;
+                Bitmap processedBitmap;
                 if (bitmap.getConfig() != Bitmap.Config.ARGB_8888) {
                     Log.d(TAG, "Converting bitmap to ARGB_8888");
                     processedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -359,10 +359,8 @@ public class PhotoPreviewFragment extends Fragment {
                 }
 
                 if (savedUri != null) {
-                    long timestamp = System.currentTimeMillis();
-                    new PhotoDatabase(requireContext()).savePhoto(savedUri.toString(), timestamp);
 
-                    // Delete temp file
+                    // Delete temp file if needed
                     if (isTemp && photoUri != null) {
                         try {
                             File tempFile = new File(Uri.parse(photoUri).getPath());
@@ -393,6 +391,7 @@ public class PhotoPreviewFragment extends Fragment {
             }
         }).start();
     }
+
 
     private void proceedToTranslation() {
         // Pass the detected objects list (can be empty) and photo URI to the TranslationFragment

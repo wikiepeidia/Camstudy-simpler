@@ -79,5 +79,5 @@
     <string name="_2_0x">2.0x</string>
     <string name="camera_controls">Camera Controls</string>
     <string name="flash_button">Flash Button</string>
-    <string name="Appdesc">Cam Study is an application that utilizes YOLOv5 for simple object detection. It then translates the detected object into other languages, helping you learn what the object is called in different languages.</string>
+    <string name="Appdesc">Cam Study is an application with simple object detection. It then translates the detected object into other languages, helping you learn what the object is called in different languages.</string>
 </resources>

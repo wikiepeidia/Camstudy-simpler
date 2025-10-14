@@ -133,7 +133,7 @@
                     android:layout_height="48dp"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_camera"
-                    android:tint="@android:color/white" />
+                    app:tint="@android:color/white" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -161,10 +161,10 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:src="@drawable/ic_arrow_forward"
-                    android:tint="@android:color/white" />
+                    app:tint="@android:color/white" />
 
             </LinearLayout>
 
@@ -195,7 +195,7 @@
                     android:layout_height="48dp"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_history"
-                    android:tint="@color/primary_color" />
+                    app:tint="@color/primary_color" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -225,7 +225,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_arrow_forward"
-                    android:tint="@color/secondary_text" />
+                    app:tint="@color/secondary_text" />
 
             </LinearLayout>
 
@@ -286,7 +286,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_arrow_forward"
-                    android:tint="@color/secondary_text" />
+                    app:tint="@color/secondary_text" />
 
             </LinearLayout>
 

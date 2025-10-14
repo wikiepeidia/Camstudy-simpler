@@ -231,26 +231,6 @@ public class UserDatabase extends SQLiteOpenHelper {
         }
     }
 
-    // Get user count (for debugging)
-    public int getUserCount() {
-        SQLiteDatabase db = null;
-        Cursor cursor = null;
-        try {
-            db = this.getReadableDatabase();
-            cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_USERS, null);
-            if (cursor.moveToFirst()) {
-                int count = cursor.getInt(0);
-                Log.d(TAG, "Total users in database: " + count);
-                return count;
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Error getting user count", e);
-        } finally {
-            if (cursor != null) cursor.close();
-        }
-        return 0;
-    }
-
     // Clear all data (for testing)
     public void clearAllData() {
         SQLiteDatabase db = null;

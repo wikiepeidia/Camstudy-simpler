@@ -19,9 +19,6 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission
-        android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
     <!-- Android 13+ scoped media read permission -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
@@ -32,7 +29,7 @@
         android:required="false" />
 
     <application
-        android:name=".MyApplication"
+        android:name=".DarkMode"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

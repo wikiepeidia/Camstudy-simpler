@@ -152,7 +152,7 @@ public class TranslationFragment extends Fragment {
         if (btnTranslate != null) {
             btnTranslate.setEnabled(!loading);
         }
-        // Không động tới btnDetectLanguage vì bạn đã bỏ nút Detect
+
     }
 
 
