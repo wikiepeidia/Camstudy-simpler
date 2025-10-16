@@ -6,7 +6,7 @@
  * Last Modified: 1/10/2025 4:38
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy;
 
 import static org.junit.Assert.assertEquals;
 

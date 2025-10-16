@@ -6,7 +6,7 @@
  * Last Modified: 10/10/2025 9:51
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.ui.translation;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+
+import vn.edu.usth.camstudy.R;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 

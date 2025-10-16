@@ -6,7 +6,7 @@
  * Last Modified: 5/10/2025 3:34
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.ui.translation;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,6 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+
+import vn.edu.usth.camstudy.R;
+import vn.edu.usth.camstudy.core.TranslationHistoryDatabase;
 
 public class HistoryFragment extends Fragment {
 

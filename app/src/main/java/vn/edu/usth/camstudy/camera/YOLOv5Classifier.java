@@ -1,5 +1,5 @@
 // app/src/main/java/vn/edu/usth/myapplication/YOLOv5Classifier.java
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.camera;
 
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;

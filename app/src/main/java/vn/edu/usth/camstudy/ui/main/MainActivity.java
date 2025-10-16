@@ -6,7 +6,7 @@
  * Last Modified: 5/10/2025 10:43
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.ui.main;
 
 import android.os.Bundle;
 import android.view.View;
@@ -18,7 +18,9 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import vn.edu.usth.myapplication.databinding.ActivityMainBinding;
+import vn.edu.usth.camstudy.R;
+import vn.edu.usth.camstudy.core.UserDatabase;
+import vn.edu.usth.camstudy.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
 

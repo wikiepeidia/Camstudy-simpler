@@ -1,4 +1,4 @@
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.ui.translation;
 
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -25,6 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import vn.edu.usth.camstudy.R;
+import vn.edu.usth.camstudy.core.TranslationHistoryDatabase;
+import vn.edu.usth.camstudy.network.AzureTranslatorService;
 
 public class TranslationFragment extends Fragment {
 

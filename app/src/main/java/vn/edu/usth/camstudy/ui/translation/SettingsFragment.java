@@ -6,7 +6,7 @@
  * Last Modified: 5/10/2025 10:43
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.ui.translation;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +26,9 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
+
+import vn.edu.usth.camstudy.R;
+import vn.edu.usth.camstudy.core.UserDatabase;
 
 public class SettingsFragment extends Fragment {
 

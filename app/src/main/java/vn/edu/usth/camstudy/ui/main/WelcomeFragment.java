@@ -6,7 +6,7 @@
  * Last Modified: 1/10/2025 9:20
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.ui.main;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -22,6 +22,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
+
+import vn.edu.usth.camstudy.R;
 
 public class WelcomeFragment extends Fragment {
 

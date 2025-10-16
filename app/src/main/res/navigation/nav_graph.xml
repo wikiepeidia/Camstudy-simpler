@@ -14,13 +14,13 @@
 
     <fragment
         android:id="@+id/nav_welcome"
-        android:name="vn.edu.usth.myapplication.WelcomeFragment"
+        android:name="vn.edu.usth.camstudy.ui.main.WelcomeFragment"
         android:label="Welcome"
         tools:layout="@layout/fragment_welcome" />
 
     <fragment
         android:id="@+id/nav_login"
-        android:name="vn.edu.usth.myapplication.LoginFragment"
+        android:name="vn.edu.usth.camstudy.ui.auth.LoginFragment"
         android:label="@string/login"
         tools:layout="@layout/fragment_login">
         <action
@@ -32,37 +32,37 @@
 
     <fragment
         android:id="@+id/nav_register"
-        android:name="vn.edu.usth.myapplication.RegisterFragment"
+        android:name="vn.edu.usth.camstudy.ui.auth.RegisterFragment"
         android:label="Register"
         tools:layout="@layout/fragment_register" />
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="vn.edu.usth.myapplication.HomeFragment"
+        android:name="vn.edu.usth.camstudy.ui.main.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_camera"
-        android:name="vn.edu.usth.myapplication.EmbeddedCameraFragment"
+        android:name="vn.edu.usth.camstudy.camera.CameraFragment"
         android:label="@string/title_camera"
         tools:layout="@layout/fragment_camera" />
 
     <fragment
         android:id="@+id/nav_history"
-        android:name="vn.edu.usth.myapplication.HistoryFragment"
+        android:name="vn.edu.usth.camstudy.ui.translation.HistoryFragment"
         android:label="@string/title_history"
         tools:layout="@layout/fragment_history" />
 
     <fragment
         android:id="@+id/nav_settings"
-        android:name="vn.edu.usth.myapplication.SettingsFragment"
+        android:name="vn.edu.usth.camstudy.ui.translation.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/nav_photo_preview"
-        android:name="vn.edu.usth.myapplication.PhotoPreviewFragment"
+        android:name="vn.edu.usth.camstudy.camera.PhotoPreviewFragment"
         android:label="Photo Preview"
         tools:layout="@layout/fragment_photo_preview">
         <argument
@@ -83,7 +83,7 @@
 
     <fragment
         android:id="@+id/nav_translation"
-        android:name="vn.edu.usth.myapplication.TranslationFragment"
+        android:name="vn.edu.usth.camstudy.ui.translation.TranslationFragment"
         android:label="Translation"
         tools:layout="@layout/fragment_translation">
         <argument

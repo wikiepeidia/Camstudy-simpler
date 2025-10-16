@@ -6,7 +6,7 @@
  * Last Modified: 10/10/2025
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.core;
 
 import android.content.ContentValues;
 import android.content.Context;

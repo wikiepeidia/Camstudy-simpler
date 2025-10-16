@@ -6,7 +6,7 @@
  * Last Modified: 5/10/2025 10:43
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.core;
 
 import android.app.Application;
 import android.content.SharedPreferences;

@@ -6,7 +6,7 @@
  * Last Modified: 5/10/2025 3:3
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.ui.auth;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,6 +23,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
+
+import vn.edu.usth.camstudy.R;
+import vn.edu.usth.camstudy.core.UserDatabase;
 
 public class LoginFragment extends Fragment {
 

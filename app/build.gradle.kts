@@ -14,11 +14,11 @@ plugins {
 }
 
 android {
-    namespace = "vn.edu.usth.myapplication"
+    namespace = "vn.edu.usth.camstudy"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "vn.edu.usth.myapplication"
+        applicationId = "vn.edu.usth.camstudy"
         minSdk = 24
         targetSdk = 36
         versionCode = 3
@@ -36,7 +36,7 @@ android {
             buildConfig = true
             viewBinding = true
         }
-            buildConfigField(
+        buildConfigField(
             "String",
             "AZURE_TRANSLATOR_KEY",
             "\"${properties.getProperty("AZURE_TRANSLATOR_KEY", "")}\""
@@ -64,23 +64,21 @@ android {
 
 dependencies {
 
-    implementation(libs.appcompat)
+     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
     // Navigation components
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui)
+    implementation(libs.navigation.fragment) // Handles navigation between Fragments with NavController.
+    implementation(libs.navigation.ui) // Connects navigation with UI elements like BottomNavigationView and ActionBar.
 
     // CameraX dependencies for embedded camera
-    implementation(libs.camerax.core)
-    implementation(libs.camerax.camera2)
-    implementation(libs.camerax.lifecycle)
-    implementation(libs.camerax.view)
+    implementation(libs.camerax.core) // Core library for CameraX functionalities.
+    implementation(libs.camerax.camera2) // Provides Camera2 implementation for CameraX.
+    implementation(libs.camerax.lifecycle) // Integrates CameraX with Android lifecycle components.
+    implementation(libs.camerax.view) // Provides CameraView for easy camera preview and image capture.
 
-    // Image loading library
-    implementation(libs.glide)
 
     // TensorFlow Lite for object detection
     implementation("org.tensorflow:tensorflow-lite-support:0.4.0")

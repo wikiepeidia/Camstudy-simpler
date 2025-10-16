@@ -13,7 +13,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    tools:context=".EmbeddedCameraFragment">
+    tools:context=".camera.CameraFragment">
 
     <!-- Camera Preview - FULLSCREEN -->
     <androidx.camera.view.PreviewView

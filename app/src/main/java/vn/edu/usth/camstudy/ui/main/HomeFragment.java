@@ -6,7 +6,7 @@
  * Last Modified: 5/10/2025 10:22
  */
 
-package vn.edu.usth.myapplication;
+package vn.edu.usth.camstudy.ui.main;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,6 +23,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.card.MaterialCardView;
+
+import vn.edu.usth.camstudy.R;
 
 public class HomeFragment extends Fragment {
 
