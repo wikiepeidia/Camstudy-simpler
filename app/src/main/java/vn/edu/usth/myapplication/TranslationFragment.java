@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2025 Android project OpenVision API
+ * All rights reserved.
+ * Project: My Application
+ * File: TranslationFragment.java
+ * Last Modified: 17/10/2025 0:56
+ */
+
 package vn.edu.usth.myapplication;
 
 import android.os.Bundle;

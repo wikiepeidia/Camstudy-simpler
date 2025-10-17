@@ -2,8 +2,8 @@
  * Copyright (c) 2025 Android project OpenVision API
  * All rights reserved.
  * Project: My Application
- * File: MyApplication.java
- * Last Modified: 5/10/2025 10:43
+ * File: DarkMode.java
+ * Last Modified: 17/10/2025 0:56
  */
 
 package vn.edu.usth.myapplication;

@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: activity_main.xml
-  ~ Last Modified: 1/10/2025 4:38
+  ~ Last Modified: 17/10/2025 0:56
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"

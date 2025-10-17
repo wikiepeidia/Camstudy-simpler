@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: TranslationHistoryDatabase.java
- * Last Modified: 10/10/2025
+ * Last Modified: 17/10/2025 0:56
  */
 
 package vn.edu.usth.myapplication;

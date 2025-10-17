@@ -4,7 +4,7 @@
   ~ All rights reserved.
   ~ Project: My Application
   ~ File: fragment_camera.xml
-  ~ Last Modified: 5/10/2025 10:22
+  ~ Last Modified: 17/10/2025 0:56
   -->
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"

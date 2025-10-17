@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: build.gradle.kts
- * Last Modified: 1/10/2025 4:38
+ * Last Modified: 17/10/2025 0:57
  */
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
