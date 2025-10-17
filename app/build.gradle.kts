@@ -3,7 +3,7 @@
  * All rights reserved.
  * Project: My Application
  * File: build.gradle.kts
- * Last Modified: 17/10/2025 0:56
+ * Last Modified: 17/10/2025 2:22
  */
 
 import java.io.FileInputStream
@@ -21,8 +21,8 @@ android {
         applicationId = "vn.edu.usth.myapplication"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.4"
+        versionCode = 5
+        versionName = "1.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -36,7 +36,7 @@ android {
             buildConfig = true
             viewBinding = true
         }
-            buildConfigField(
+        buildConfigField(
             "String",
             "AZURE_TRANSLATOR_KEY",
             "\"${properties.getProperty("AZURE_TRANSLATOR_KEY", "")}\""

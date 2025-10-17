@@ -3,11 +3,12 @@
  * All rights reserved.
  * Project: My Application
  * File: SettingsFragment.java
- * Last Modified: 17/10/2025 0:56
+ * Last Modified: 17/10/2025 2:18
  */
 
 package vn.edu.usth.myapplication;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,6 +36,7 @@ public class SettingsFragment extends Fragment {
     private UserDatabase userDatabase;
     private boolean isDarkModeChanging = false;
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -77,7 +79,8 @@ public class SettingsFragment extends Fragment {
                 startActivity(Intent.createChooser(emailIntent, "Send feedback via..."));
             } catch (Exception e) {
                 Toast.makeText(getContext(), "No email app found!", Toast.LENGTH_SHORT).show();
-            }});
+            }
+        });
 
         logoutLayout.setOnClickListener(v -> showLogoutDialog());
 
