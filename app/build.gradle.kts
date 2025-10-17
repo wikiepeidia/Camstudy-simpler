@@ -79,9 +79,6 @@ dependencies {
     implementation(libs.camerax.lifecycle)
     implementation(libs.camerax.view)
 
-    // Image loading library
-    implementation(libs.glide)
-
     // TensorFlow Lite for object detection
     implementation("org.tensorflow:tensorflow-lite-support:0.4.0")
     implementation("org.tensorflow:tensorflow-lite-task-vision:0.4.0")
