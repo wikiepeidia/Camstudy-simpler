@@ -214,11 +214,9 @@ public class PhotoPreviewFragment extends Fragment {
                         Log.d(TAG, "Detected objects: " + detectedText);
                     }
 
-                    // Draw bounding boxes on image
                     if (!results.isEmpty()) {
-                        Bitmap annotatedBitmap = yoloClassifier.drawDetections(finalBitmap, results);
-                        imgPreview.setImageBitmap(annotatedBitmap);
-                        currentBitmap = annotatedBitmap;
+                        imgPreview.setImageBitmap(finalBitmap);
+                        currentBitmap = finalBitmap;
                     }
                 });
 
